@@ -1,0 +1,4 @@
+{:cronut/job       {}
+
+ :cronut/scheduler {:time-zone #cronut/time-zone "Australia/Melbourne"
+                    :jobs      [#ig/ref :cronut/job]}}
