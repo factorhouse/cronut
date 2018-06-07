@@ -5,7 +5,7 @@
             [clojure.tools.logging :as log]
             [integrant.core :as ig])
   (:import (java.time.temporal ChronoUnit)
-           (org.quartz Scheduler Job SimpleScheduleBuilder JobExecutionException JobBuilder TriggerBuilder)
+           (org.quartz Scheduler Job SimpleScheduleBuilder JobExecutionException JobBuilder TriggerBuilder JobDetail)
            (org.quartz.impl StdSchedulerFactory)
            (org.quartz.spi JobFactory TriggerFiredBundle)
            (java.util TimeZone)))
@@ -51,12 +51,12 @@
 (defn proxy
   [job]
   (let [{:keys [identity description recover? durable?]} job]
-    (.build  (cond-> (JobBuilder/newJob)
-               true (.ofType ProxyJob)
-               identity (.withIdentity (first identity) (second identity))
-               description (.withDescription description)
-               (boolean? recover?) (.requestRecovery recover?)
-               (boolean? durable?) (.storeDurably durable?)))))
+    (.build (cond-> (JobBuilder/newJob)
+              true (.ofType ProxyJob)
+              identity (.withIdentity (first identity) (second identity))
+              description (.withDescription description)
+              (boolean? recover?) (.requestRecovery recover?)
+              (boolean? durable?) (.storeDurably durable?)))))
 
 (defn activate
   [scheduler schedule]
@@ -65,9 +65,9 @@
   (loop [schedule  schedule
          scheduled {}]
     (if-let [{:keys [job trigger]} (first schedule)]
-      (let [proxy-job (proxy job)]
-        (.scheduleJob scheduler proxy-job trigger)
-        (recur (rest schedule) (assoc scheduled (.getKey proxy-job) job)))
+      (let [proxy-detail (proxy job)]
+        (.scheduleJob scheduler proxy-detail trigger)
+        (recur (rest schedule) (assoc scheduled (.getKey ^JobDetail proxy-detail) job)))
       (.setJobFactory scheduler (job-factory scheduled))))
   (.start scheduler)
   scheduler)
