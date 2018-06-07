@@ -9,7 +9,7 @@
                     :dep-one     #ig/ref :dep/one
                     :dep-two     #ig/ref :test.job/one}
 
- :cronut/scheduler {:time-zone #cronut/time-zone "Australia/Melbourne"
+ :cronut/scheduler {:time-zone "Australia/Melbourne"
                     :schedule  [{:job     #ig/ref :test.job/one
                                  :trigger #cronut/trigger {:type      :simple
                                                            :interval  2
