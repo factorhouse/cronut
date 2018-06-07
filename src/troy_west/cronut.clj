@@ -29,15 +29,44 @@
       (catch Exception ex
         (throw (JobExecutionException. ^Exception ex))))))
 
+(defn trigger-builder
+  [{:keys [identity description start end priority]}]
+  (cond-> (TriggerBuilder/newTrigger)
+    (seq identity) (.withIdentity (first identity) (second identity))
+    description (.withDescription description)
+    start (.startAt start)
+    (nil? start) (.startNow)
+    end (.endAt end)
+    priority (.withPriority (int priority))))
+
+(defn simple-schedule
+  [{:keys [interval time-unit repeat misfire]}]
+  (let [schedule (SimpleScheduleBuilder/simpleSchedule)]
+    (case time-unit
+      :millis (.withIntervalInMilliseconds schedule interval)
+      :seconds (.withIntervalInSeconds schedule interval)
+      :minutes (.withIntervalInMinutes schedule interval)
+      :hours (.withIntervalInHours schedule interval)
+      nil (.withIntervalInMilliseconds schedule interval))
+    (case misfire
+      :fire-now (.withMisfireHandlingInstructionFireNow schedule)
+      :ignore (.withMisfireHandlingInstructionIgnoreMisfires schedule)
+      :next-existing (.withMisfireHandlingInstructionNextWithExistingCount schedule)
+      :next-remaining (.withMisfireHandlingInstructionNextWithRemainingCount schedule)
+      :now-existing (.withMisfireHandlingInstructionNowWithExistingCount schedule)
+      :now-remaining (.withMisfireHandlingInstructionNowWithRemainingCount schedule)
+      nil nil)
+    (cond
+      (number? repeat) (.withRepeatCount schedule repeat)
+      (= :forever repeat) (.repeatForever schedule))
+    schedule))
+
 (defmulti trigger :type)
 
 (defmethod trigger :simple
   [config]
-  (-> (TriggerBuilder/newTrigger)
-      (.startNow)
-      (.withSchedule (-> (SimpleScheduleBuilder/simpleSchedule)
-                         (.withIntervalInSeconds 2)
-                         (.repeatForever)))
+  (-> (trigger-builder config)
+      (.withSchedule (simple-schedule config))
       (.build)))
 
 (defn job-factory
@@ -53,7 +82,7 @@
   (let [{:keys [identity description recover? durable?]} job]
     (.build (cond-> (JobBuilder/newJob)
               true (.ofType ProxyJob)
-              identity (.withIdentity (first identity) (second identity))
+              (seq identity) (.withIdentity (first identity) (second identity))
               description (.withDescription description)
               (boolean? recover?) (.requestRecovery recover?)
               (boolean? durable?) (.storeDurably durable?)))))
@@ -62,10 +91,12 @@
   [scheduler schedule]
   ;; TODO: potentially improve this loop to carry job->proxy-job map and re-use in the case of job
   ;; TODO: with multiple triggers, currently we create multiple proxy-jobs
+  ;; TODO: actually thinking about it we'd need to support that due to re-used jobs with name clashes
   (loop [schedule  schedule
          scheduled {}]
     (if-let [{:keys [job trigger]} (first schedule)]
       (let [proxy-detail (proxy job)]
+        (log/info "scheduling" trigger proxy-detail)
         (.scheduleJob scheduler proxy-detail trigger)
         (recur (rest schedule) (assoc scheduled (.getKey ^JobDetail proxy-detail) job)))
       (.setJobFactory scheduler (job-factory scheduled))))

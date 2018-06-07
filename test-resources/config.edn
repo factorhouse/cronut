@@ -13,12 +13,11 @@
                     :schedule  [{:job     #ig/ref :test.job/one
                                  :trigger #cronut/trigger {:type      :simple
                                                            :interval  2
-                                                           :time-unit #cronut/time-unit "seconds"
+                                                           :time-unit :seconds
                                                            :repeat    :forever}}
                                 {:job     #ig/ref :test.job/two
                                  :trigger #cronut/trigger {:type        :simple
-                                                           :interval    2
-                                                           :time-unit   #cronut/time-unit "seconds"
+                                                           :interval    3000
                                                            :repeat      :forever
                                                            :identity    ["trigger-two" "test"]
                                                            :description "test trigger"
