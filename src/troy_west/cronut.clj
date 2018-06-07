@@ -1,33 +1,12 @@
 (ns troy-west.cronut
   (:refer-clojure :exclude [proxy])
   (:require [clojure.edn :as edn]
-            [clojure.string :as str]
             [clojure.tools.logging :as log]
             [integrant.core :as ig])
-  (:import (java.time.temporal ChronoUnit)
-           (org.quartz Scheduler Job SimpleScheduleBuilder JobExecutionException JobBuilder TriggerBuilder JobDetail)
+  (:import (org.quartz Scheduler Job SimpleScheduleBuilder JobExecutionException JobBuilder TriggerBuilder JobDetail)
            (org.quartz.impl StdSchedulerFactory)
            (org.quartz.spi JobFactory TriggerFiredBundle)
            (java.util TimeZone)))
-
-(defn time-unit
-  [text]
-  ;; Cursive shows a spurious arity highlight below: https://github.com/cursive-ide/cursive/issues/1988
-  (ChronoUnit/valueOf (str/upper-case text)))
-
-(defn time-zone
-  [text]
-  (TimeZone/getTimeZone ^String text))
-
-(defrecord ProxyJob [proxied-job]
-  Job
-  (execute [_ job-context]
-    (try
-      (.execute ^Job proxied-job job-context)
-      (catch JobExecutionException ex
-        (throw ex))
-      (catch Exception ex
-        (throw (JobExecutionException. ^Exception ex))))))
 
 (defn trigger-builder
   [{:keys [identity description start end priority]}]
@@ -69,6 +48,16 @@
       (.withSchedule (simple-schedule config))
       (.build)))
 
+(defrecord ProxyJob [proxied-job]
+  Job
+  (execute [_ job-context]
+    (try
+      (.execute ^Job proxied-job job-context)
+      (catch JobExecutionException ex
+        (throw ex))
+      (catch Exception ex
+        (throw (JobExecutionException. ^Exception ex))))))
+
 (defn job-factory
   [scheduled]
   (reify JobFactory
@@ -109,7 +98,7 @@
     (log/infof "initializing schedule of [%s] jobs" (count schedule))
     (when time-zone
       (log/infof "with default time-zone %s" time-zone)
-      (TimeZone/setDefault time-zone))
+      (TimeZone/setDefault (TimeZone/getTimeZone ^String time-zone)))
     (when-not update-check?
       (System/setProperty "org.terracotta.quartz.skipUpdateCheck" "true")
       (log/infof "with quartz update check disabled" time-zone))
@@ -119,13 +108,9 @@
   [scheduler]
   (.shutdown ^Scheduler scheduler))
 
-(defmethod ig/init-key :cronut/time-unit
-  [_ text]
-  (time-unit text))
-
-(defmethod ig/init-key :cronut/time-zone
-  [_ text]
-  (time-zone text))
+(defmethod ig/init-key :cronut/trigger
+  [_ config]
+  (trigger config))
 
 (defmethod ig/init-key :cronut/scheduler
   [_ config]
@@ -137,8 +122,6 @@
 
 (def data-readers
   {'ig/ref           ig/ref
-   'cronut/time-unit troy-west.cronut/time-unit
-   'cronut/time-zone troy-west.cronut/time-zone
    'cronut/trigger   troy-west.cronut/trigger})
 
 (defn init-system
