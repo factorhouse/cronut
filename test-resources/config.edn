@@ -1,4 +1,17 @@
-{:cronut/job       {}
+{:dep/one          {:a 1}
+
+ :test.job/one     {:dep-one #ig/ref :dep/one}
+ :test.job/two     {:dep-one #ig/ref :dep/one
+                    :dep-two #ig/ref :test.job/one}
 
  :cronut/scheduler {:time-zone #cronut/time-zone "Australia/Melbourne"
-                    :jobs      [#ig/ref :cronut/job]}}
+                    :triggers  [{:job      #ig/ref :test.job/one
+                                 :schedule #cronut/schedule {:type      :simple
+                                                             :repeat    :forever
+                                                             :time-unit #cronut/time-unit "seconds"
+                                                             :interval  5}}
+                                {:job      #ig/ref :test.job/two
+                                 :schedule #cronut/schedule {:type      :simple
+                                                             :time-unit #cronut/time-unit "seconds"
+                                                             :interval  5}}]}}
+

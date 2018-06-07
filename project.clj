@@ -10,4 +10,4 @@
   :profiles {:dev {:resource-paths ["test-resources"]
                    :dependencies   [[ch.qos.logback/logback-classic "1.2.3"]]}}
 
-  :pedantic? :abort)
+  )
