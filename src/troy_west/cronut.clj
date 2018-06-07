@@ -1,34 +1,23 @@
 (ns troy-west.cronut
+  (:refer-clojure :exclude [proxy])
   (:require [clojure.edn :as edn]
             [clojure.string :as str]
             [clojure.tools.logging :as log]
             [integrant.core :as ig])
   (:import (java.time.temporal ChronoUnit)
-           (java.time ZoneId)
-           (org.quartz Scheduler TriggerBuilder JobBuilder Job SimpleScheduleBuilder JobExecutionException)
+           (org.quartz Scheduler Job SimpleScheduleBuilder JobExecutionException JobBuilder TriggerBuilder)
            (org.quartz.impl StdSchedulerFactory)
-           (org.quartz.spi JobFactory TriggerFiredBundle)))
+           (org.quartz.spi JobFactory TriggerFiredBundle)
+           (java.util TimeZone)))
 
-(def cronut-key "cronut/key")
-
-(defn chrono-unit
+(defn time-unit
   [text]
-  ;; If you're using Cursive and see the arity highlight below: https://github.com/cursive-ide/cursive/issues/1988
+  ;; Cursive shows a spurious arity highlight below: https://github.com/cursive-ide/cursive/issues/1988
   (ChronoUnit/valueOf (str/upper-case text)))
 
-(defn zone-id
+(defn time-zone
   [text]
-  (ZoneId/of text))
-
-(def utc-zone (ZoneId/of "UTC"))
-
-(defmulti schedule :type)
-
-(defmethod schedule :simple
-  [config]
-  (-> (SimpleScheduleBuilder/simpleSchedule)
-      (.withIntervalInSeconds (:interval config))
-      (.repeatForever)))
+  (TimeZone/getTimeZone ^String text))
 
 (defrecord ProxyJob [proxied-job]
   Job
@@ -40,52 +29,72 @@
       (catch Exception ex
         (throw (JobExecutionException. ^Exception ex))))))
 
+(defmulti trigger :type)
+
+(defmethod trigger :simple
+  [config]
+  (-> (TriggerBuilder/newTrigger)
+      (.startNow)
+      (.withSchedule (-> (SimpleScheduleBuilder/simpleSchedule)
+                         (.withIntervalInSeconds 2)
+                         (.repeatForever)))
+      (.build)))
+
 (defn job-factory
-  [triggers-map]
+  [scheduled]
   (reify JobFactory
     (newJob [_ bundle _]
       (let [job-detail (.getJobDetail ^TriggerFiredBundle bundle)
-            job-data   (.getJobDataMap job-detail)]
-        (->ProxyJob (->> (.get job-data cronut-key)
-                         (get triggers-map)
-                         :job))))))
+            job-key    (.getKey job-detail)]
+        (->ProxyJob (get scheduled job-key))))))
+
+(defn proxy
+  [job]
+  (let [{:keys [identity description recover? durable?]} job]
+    (.build  (cond-> (JobBuilder/newJob)
+               true (.ofType ProxyJob)
+               identity (.withIdentity (first identity) (second identity))
+               description (.withDescription description)
+               (boolean? recover?) (.requestRecovery recover?)
+               (boolean? durable?) (.storeDurably durable?)))))
+
+(defn activate
+  [scheduler schedule]
+  ;; TODO: potentially improve this loop to carry job->proxy-job map and re-use in the case of job
+  ;; TODO: with multiple triggers, currently we create multiple proxy-jobs
+  (loop [schedule  schedule
+         scheduled {}]
+    (if-let [{:keys [job trigger]} (first schedule)]
+      (let [proxy-job (proxy job)]
+        (.scheduleJob scheduler proxy-job trigger)
+        (recur (rest schedule) (assoc scheduled (.getKey proxy-job) job)))
+      (.setJobFactory scheduler (job-factory scheduled))))
+  (.start scheduler)
+  scheduler)
 
 (defn initialize
   [config]
-  (let [{:keys [update-check? time-zone triggers] :or {time-zone utc-zone}} config]
-    (let [triggers-map (->> (map-indexed (fn [idx trigger]
-                                           (assert (instance? Job (:job trigger)) "jobs must implement org.quartz.Job")
-                                           [(int idx) trigger]) triggers)
-                            (into {}))
-          scheduler    (StdSchedulerFactory/getDefaultScheduler)]
-      (log/infof "initializing [%s] triggers in %s" (count triggers) time-zone)
-      (when-not update-check?
-        (System/setProperty "org.terracotta.quartz.skipUpdateCheck" "true")
-        (log/infof "quartz update check disabled" time-zone))
-      (.setJobFactory scheduler (job-factory triggers-map))
-      (doseq [[idx trigger] triggers-map]
-        (.scheduleJob scheduler
-                      (-> (JobBuilder/newJob)
-                          (.ofType ProxyJob)
-                          (.usingJobData ^String cronut-key ^Integer idx)
-                          (.build))
-                      (-> (TriggerBuilder/newTrigger)
-                          (.startNow)
-                          (.withSchedule (:schedule trigger))
-                          (.build))))
-      (.start scheduler)
-      scheduler)))
+  (let [{:keys [schedule time-zone update-check?]} config]
+    (log/infof "initializing schedule of [%s] jobs" (count schedule))
+    (when time-zone
+      (log/infof "with default time-zone %s" time-zone)
+      (TimeZone/setDefault time-zone))
+    (when-not update-check?
+      (System/setProperty "org.terracotta.quartz.skipUpdateCheck" "true")
+      (log/infof "with quartz update check disabled" time-zone))
+    (activate (StdSchedulerFactory/getDefaultScheduler) schedule)))
 
 (defn shutdown
   [scheduler]
   (.shutdown ^Scheduler scheduler))
+
 (defmethod ig/init-key :cronut/time-unit
   [_ text]
-  (chrono-unit text))
+  (time-unit text))
 
 (defmethod ig/init-key :cronut/time-zone
   [_ text]
-  (zone-id text))
+  (time-zone text))
 
 (defmethod ig/init-key :cronut/scheduler
   [_ config]
@@ -97,14 +106,16 @@
 
 (def data-readers
   {'ig/ref           ig/ref
-   'cronut/time-unit troy-west.cronut/chrono-unit
-   'cronut/time-zone troy-west.cronut/zone-id
-   'cronut/schedule  troy-west.cronut/schedule})
+   'cronut/time-unit troy-west.cronut/time-unit
+   'cronut/time-zone troy-west.cronut/time-zone
+   'cronut/trigger   troy-west.cronut/trigger})
 
-(defn init
-  [config]
-  (ig/init (edn/read-string {:readers data-readers} config)))
+(defn init-system
+  ([config]
+   (init-system config nil))
+  ([config readers]
+   (ig/init (edn/read-string {:readers (merge data-readers readers)} config))))
 
-(defn halt!
+(defn halt-system
   [system]
   (ig/halt! system))
