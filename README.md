@@ -10,10 +10,10 @@ Cronut provides a data-first Clojure wrapper for the [Quartz Job Scheduler](http
 
 Quartz is richly featured, open source jobn scheduling library that is fairly standard on the JVM.
 
-Clojure has two wrappers for Quartz already:
+Clojure has two existing wrappers for Quartz:
 
 1. [Quartzite](https://github.com/michaelklishin/quartzite) by Michael Klishin / ClojureWerkz
-2. [Twarc](https://github.com/prepor/twarc) by Andrew Rudenko / Rudenko
+2. [Twarc](https://github.com/prepor/twarc) by Andrew Rudenko / Prepor
 
 How does Cronut differ?
 
