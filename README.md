@@ -1,6 +1,6 @@
 # Cronut: Scheduled Execution via Quartz and Integrant
 
-> "Cronut is a good name, you can call it that if you want to" - James Sofra
+> "Cronut is a good name, you can call it that if you want" - James Sofra
 
 Cronut provides a data-first Clojure wrapper for the [Quartz Job Scheduler](http://www.quartz-scheduler.org/)
 
@@ -15,17 +15,14 @@ Clojure has two wrappers for Quartz already:
 1. [Quartzite](https://github.com/michaelklishin/quartzite) by Michael Klishin / ClojureWerkz
 2. [Twarc](https://github.com/prepor/twarc) by Andrew Rudenko / Rudenko
 
-There are also a number of non-quartz based schedulers, so why another?
+Cronut differs from Quartzite / Twarc:
 
-Cronut differs from Quartzite / Twarc in that:
-
-1. Configured entire from data
+1. Configured entirely from data (and provides [Integrant](https://github.com/weavejester/integrant) bindings)
 2. No macros or new protocols, just implement the org.quartz.Job interface
 3. No global state
 4. Latest version of Quartz
-5. Shortcut data-readers for common use-cases
-6. Easily extensible for further triggers
-7. Bindings provided for [Integrant](https://github.com/weavejester/integrant)
+5. Tagged literals to shortcut common use-cases (#cronut/cron, #cronut/interval)
+6. Easily extensible for further triggers / tagged literals
 
 # Usage
 
@@ -38,21 +35,32 @@ The scheduler supports two fields:
 1. (optional) time-zone: e.g. "Australia/Pacific"
 2. (required) schedule: a sequence of maps that contains :job and a :trigger (a scheduled item)
 
-## :job
+e.g
+
+````clojure
+:cronut/scheduler {:time-zone "Australia/Melbourne"
+                   :schedule  [{:job     #ig/ref :test.job/two
+                                :trigger #cronut/interval 3500}
+
+                               {:job     #ig/ref :test.job/two
+                                :trigger #cronut/cron "*/8 * * * * ?"}]}}
+````
+
+### :job
 
 The :job in every scheduled item must implement the org.quartz.Job interface
 
 The expectation being that every 'job' in your Integrant system will reify that interface, either directly via `reify`
 or by returning a defrecord that implements the interface. Both examples shown below.
 
-## :trigger
+### :trigger
 
 The :trigger in every scheduled item must resolve to an org.quartz.Trigger of some variety or another, to ease that 
-resolution Cronut provides a variety of data-readers and Integrant lifecycle bindings.
+resolution Cronut provides tagged literals and Integrant lifecycle bindings.
 
 ## Example System
 
-Example: Two jobs and three triggers in a simple Integrant system. 
+Given a simple Integrant configuration of two jobs and four triggers 
 
 ````clojure
 {:test.job/one     {:dep-one #ig/ref :dep/one}
@@ -87,7 +95,7 @@ Example: Two jobs and three triggers in a simple Integrant system.
 
 ````
 
-Example: the associated Integrant lifecycle impl, note:
+And the associated Integrant lifecycle impl, note:
 
 - test.job/one reifies the org.quartz.Job interface
 - test.job/two instantiates a defrecord (that allows some further quartz job configuration)  
@@ -109,7 +117,7 @@ Example: the associated Integrant lifecycle impl, note:
   (map->TestDefrecordJobImpl config))
 ````
 
-See troy-west.cronut.integration-fixture for full example:
+We can realise that system and run those jobs (See troy-west.cronut.integration-fixture for full example):
 
 ````clojure
 (require '[troy-west.cronut.integration-fixture :as itf])
