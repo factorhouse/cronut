@@ -17,7 +17,7 @@ Clojure has two wrappers for Quartz already:
 
 How does Cronut differ?
 
-1. Configured entirely from data (and provides [Integrant](https://github.com/weavejester/integrant) bindings)
+1. Configured entirely from data (with [Integrant](https://github.com/weavejester/integrant) bindings provided)
 2. No macros or new protocols, just implement the org.quartz.Job interface
 3. No global Clojure state
 4. Latest version of Quartz
