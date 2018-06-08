@@ -8,7 +8,7 @@ Cronut provides a data-first Clojure wrapper for the [Quartz Job Scheduler](http
 
 # Summary
 
-Quartz is richly featured, open source jobn scheduling library that is fairly standard on the JVM.
+Quartz is richly featured, open source job scheduling library that is fairly standard on the JVM.
 
 Clojure has two existing wrappers for Quartz:
 
