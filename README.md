@@ -41,7 +41,6 @@ e.g.
 :cronut/scheduler {:time-zone "Australia/Melbourne"
                    :schedule  [{:job     #ig/ref :test.job/two
                                 :trigger #cronut/interval 3500}
-
                                {:job     #ig/ref :test.job/two
                                 :trigger #cronut/cron "*/8 * * * * ?"}]}}
 ````
