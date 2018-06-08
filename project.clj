@@ -1,6 +1,6 @@
 (defproject com.troy-west/cronut "0.1.1-SNAPSHOT"
 
-  :description "Scheduled Execution via Quartzite and Integrant"
+  :description "Clojure Scheduled Execution via Quartzite and Integrant"
 
   :url "https://github.com/troy-west/cronut"
 
