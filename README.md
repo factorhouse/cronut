@@ -46,17 +46,38 @@ e.g
                                 :trigger #cronut/cron "*/8 * * * * ?"}]}}
 ````
 
-### :job
+### The :job
 
 The :job in every scheduled item must implement the org.quartz.Job interface
 
 The expectation being that every 'job' in your Integrant system will reify that interface, either directly via `reify`
 or by returning a defrecord that implements the interface. Both examples shown below.
 
-### :trigger
+### The :trigger
 
 The :trigger in every scheduled item must resolve to an org.quartz.Trigger of some variety or another, to ease that 
 resolution Cronut provides tagged literals and Integrant lifecycle bindings.
+
+### Tagged Literals
+
+#### #cronut/cron: Simple Cron Scheduling
+
+A job is scheduled to run on a cron by using the #cronut/cron tagged literal followed by a valid cron expression
+
+The job will start immediately when the system is initialized
+
+````clojure
+:trigger #cronut/cron "*/8 * * * * ?"
+````
+
+#### #cronut/interval: Simple Interval Scheduling
+
+A job is scheduled to run periodically by using the #cronut/interval tagged literal followed by a milliseconds value 
+
+````clojure
+:trigger #cronut/interval 3500
+````
+
 
 ## Example System
 
