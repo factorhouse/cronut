@@ -19,7 +19,7 @@ How does Cronut differ?
 
 1. Configured entirely from data (and provides [Integrant](https://github.com/weavejester/integrant) bindings)
 2. No macros or new protocols, just implement the org.quartz.Job interface
-3. No global state
+3. No global Clojure state
 4. Latest version of Quartz
 5. Tagged literals to shortcut common use-cases (#cronut/cron, #cronut/interval)
 6. Easily extensible for further triggers / tagged literals
@@ -53,10 +53,27 @@ The :job in every scheduled item must implement the org.quartz.Job interface
 The expectation being that every 'job' in your Integrant system will reify that interface, either directly via `reify`
 or by returning a defrecord that implements the interface. Both examples shown below.
 
+Cronut supports further Quartz configuration of jobs (identity, description, recovery, and priority) by expecting those
+values to be assoc'd onto your job. You do not have to set them (in fact in most cases you can likely ignore them),
+however if you do wan't that control you will likely use the defrecord approach as opposed to the simpler reify option:
+
+e.g.
+
+````clojure
+:test.job/two     {:identity    ["job-two" "test"]
+                   :description "test job"
+                   :recover?    true
+                   :durable?    false
+                   :dep-one     #ig/ref :dep/one
+                   :dep-two     #ig/ref :test.job/one}
+````                    
+
+See: example, below and tests for more details.
+
 ### The :trigger
 
 The :trigger in every scheduled item must resolve to an org.quartz.Trigger of some variety or another, to ease that 
-resolution Cronut provides tagged literals and Integrant lifecycle bindings.
+resolution Cronut provides the following tagged literals:
 
 ### Tagged Literals
 
@@ -78,19 +95,59 @@ A job is scheduled to run periodically by using the #cronut/interval tagged lite
 :trigger #cronut/interval 3500
 ````
 
+#### #cronut/trigger: Full (and extensible) Trigger Definition
+
+Both #cronut/cron and #cronut/interval are effectively shortcuts to full trigger definition with sensible defaults.
+
+The #cronut/trigger tagged literal supports the full set of Quartz configuration for Simple and Cron triggers:
+
+````clojure
+:trigger #cronut/trigger {:type        :simple
+                          :interval    3000
+                          :repeat      :forever
+                          :identity    ["trigger-two" "test"]
+                          :description "test trigger"
+                          :start       #inst "2019-01-01T00:00:00.000-00:00"
+                          :end         #inst "2019-02-01T00:00:00.000-00:00"
+                          :priority    5}
+````
+
+This tagged literal calls a Clojure multi-method that you can extend with your own config -> trigger implementation
+
+## Integrant
+
+When initializing an Integrant system you will need to provide the Cronut tagged literals.
+
+See: troy-west.cronut/init-system for a convenience implementation if you prefer:
+
+````clojure
+(def data-readers
+  {'ig/ref          ig/ref
+   'cronut/trigger  troy-west.cronut/trigger-builder
+   'cronut/cron     troy-west.cronut/shortcut-cron
+   'cronut/interval troy-west.cronut/shortcut-interval})
+
+(defn init-system
+  "Convenience for starting integrant systems with cronut data-readers"
+  ([config]
+   (init-system config nil))
+  ([config readers]
+   (ig/init (edn/read-string {:readers (merge data-readers readers)} config))))
+````
 
 ## Example System
 
-Given a simple Integrant configuration of two jobs and four triggers 
+Given a simple Integrant configuration of two jobs and four triggers.
+
+Job Two is executed on multiple schedules as defined by the latter three triggers. 
 
 ````clojure
-{:test.job/one     {:dep-one #ig/ref :dep/one}
+{:test.job/one     {}
 
  :test.job/two     {:identity    ["job-two" "test"]
                     :description "test job"
                     :recover?    true
                     :durable?    false
-                    :dep-one     #ig/ref :dep/one
                     :dep-two     #ig/ref :test.job/one}
 
  :cronut/scheduler {:time-zone "Australia/Melbourne"

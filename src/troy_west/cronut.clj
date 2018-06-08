@@ -144,10 +144,6 @@
   [scheduler]
   (.shutdown ^Scheduler scheduler))
 
-(defmethod ig/init-key :cronut/trigger
-  [_ config]
-  (trigger-builder config))
-
 (defmethod ig/init-key :cronut/scheduler
   [_ config]
   (initialize config))
