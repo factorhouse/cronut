@@ -126,7 +126,8 @@ The #cronut/trigger tagged literal supports the full set of Quartz configuration
                           :priority    5}
 ````
 
-This tagged literal calls a Clojure multi-method that you can extend with your own config -> trigger implementation
+This tagged literal calls a Clojure multi-method that you can extend with your own config -> trigger implementation, 
+see: [troy-west.cronut/trigger-builder](https://github.com/troy-west/cronut/blob/01ada3182ff18ec4a78095cdba80d43f660d8c85/src/troy_west/cronut.clj#L58)
 
 ## Integrant
 
