@@ -29,7 +29,7 @@ How does Cronut differ?
 
 ## :cronut/scheduler
 
-Cronut provides lifecycle implementation for the Quartz Scheduler, exposed via Integrant bindings.
+Cronut provides lifecycle implementation for the Quartz Scheduler, exposed via Integrant / `:cronut/scheduler`
 
 The scheduler supports two fields:
 
@@ -48,7 +48,7 @@ e.g.
 
 ### The :job
 
-The :job in every scheduled item must implement the org.quartz.Job interface
+The `:job` in every scheduled item must implement the org.quartz.Job interface
 
 The expectation being that every 'job' in your Integrant system will reify that interface, either directly via `reify`
 or by returning a defrecord that implements the interface. e.g.
@@ -86,14 +86,14 @@ and pass that configuration through edn, e.g.
 
 ### The :trigger
 
-The :trigger in every scheduled item must resolve to an org.quartz.Trigger of some variety or another, to ease that 
+The `:trigger` in every scheduled item must resolve to an org.quartz.Trigger of some variety or another, to ease that 
 resolution Cronut provides the following tagged literals:
 
 ### Tagged Literals
 
 #### #cronut/cron: Simple Cron Scheduling
 
-A job is scheduled to run on a cron by using the #cronut/cron tagged literal followed by a valid cron expression
+A job is scheduled to run on a cron by using the `#cronut/cron` tagged literal followed by a valid cron expression
 
 The job will start immediately when the system is initialized
 
@@ -103,7 +103,7 @@ The job will start immediately when the system is initialized
 
 #### #cronut/interval: Simple Interval Scheduling
 
-A job is scheduled to run periodically by using the #cronut/interval tagged literal followed by a milliseconds value 
+A job is scheduled to run periodically by using the `#cronut/interval` tagged literal followed by a milliseconds value 
 
 ````clojure
 :trigger #cronut/interval 3500
@@ -126,14 +126,13 @@ The #cronut/trigger tagged literal supports the full set of Quartz configuration
                           :priority    5}
 ````
 
-This tagged literal calls a Clojure multi-method that you can extend with your own config -> trigger implementation, 
-see: [troy-west.cronut/trigger-builder](https://github.com/troy-west/cronut/blob/01ada3182ff18ec4a78095cdba80d43f660d8c85/src/troy_west/cronut.clj#L58)
+This tagged literal calls a Clojure multi-method that is open for extension, see: [troy-west.cronut/trigger-builder](https://github.com/troy-west/cronut/blob/01ada3182ff18ec4a78095cdba80d43f660d8c85/src/troy_west/cronut.clj#L58)
 
 ## Integrant
 
 When initializing an Integrant system you will need to provide the Cronut tagged literals.
 
-See: troy-west.cronut/init-system for a convenience implementation if you prefer:
+See: `troy-west.cronut/init-system` for a convenience implementation if you prefer:
 
 ````clojure
 (def data-readers
@@ -200,8 +199,8 @@ Job Two is executed on multiple schedules as defined by the latter three trigger
 
 And the associated Integrant lifecycle impl, note:
 
-- test.job/one reifies the org.quartz.Job interface
-- test.job/two instantiates a defrecord (that allows some further quartz job configuration)  
+- `test.job/one` reifies the org.quartz.Job interface
+- `test.job/two` instantiates a defrecord (that allows some further quartz job configuration)  
 
 ````clojure
 (defmethod ig/init-key :test.job/one
@@ -220,7 +219,7 @@ And the associated Integrant lifecycle impl, note:
   (map->TestDefrecordJobImpl config))
 ````
 
-We can realise that system and run those jobs (See troy-west.cronut.integration-fixture for full example):
+We can realise that system and run those jobs (See `troy-west.cronut.integration-fixture` for full example):
 
 ````clojure
 (require '[troy-west.cronut.integration-fixture :as itf])
