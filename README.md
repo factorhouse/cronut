@@ -1,21 +1,21 @@
 # Cronut: Scheduled Execution via Quartz and Integrant
 
+[![Clojars Project](https://img.shields.io/clojars/v/com.troy-west/cronut.svg)](https://clojars.org/com.troy-west/cronut)
+
 > "Cronut is a good name, you can call it that if you want" - James Sofra
 
 Cronut provides a data-first Clojure wrapper for the [Quartz Job Scheduler](http://www.quartz-scheduler.org/)
 
-[![Clojars Project](https://img.shields.io/clojars/v/com.troy-west/cronut.svg)](https://clojars.org/com.troy-west/cronut)
-
 # Summary
 
-Quartz is richly featured, open source jobn scheduling library that is fairly standard on JVM projects.
+Quartz is richly featured, open source jobn scheduling library that is fairly standard on the JVM.
 
 Clojure has two wrappers for Quartz already:
 
 1. [Quartzite](https://github.com/michaelklishin/quartzite) by Michael Klishin / ClojureWerkz
 2. [Twarc](https://github.com/prepor/twarc) by Andrew Rudenko / Rudenko
 
-Cronut differs from Quartzite / Twarc:
+How does Cronut differ?
 
 1. Configured entirely from data (and provides [Integrant](https://github.com/weavejester/integrant) bindings)
 2. No macros or new protocols, just implement the org.quartz.Job interface
@@ -33,7 +33,7 @@ Cronut provides lifecycle implementation for the Quartz Scheduler, exposed via I
 The scheduler supports two fields:
 
 1. (optional) time-zone: e.g. "Australia/Pacific"
-2. (required) schedule: a sequence of maps that contains :job and a :trigger (a scheduled item)
+2. (required) schedule: a sequence of 'items' to schedule, each being a map containing a :job and :trigger
 
 e.g
 
