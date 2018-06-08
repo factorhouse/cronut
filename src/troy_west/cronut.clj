@@ -59,13 +59,13 @@
 
 (defmethod trigger-builder :simple
   [config]
-  (-> (base-trigger-builder config)
-      (.withSchedule (simple-schedule config))))
+  (.withSchedule ^TriggerBuilder (base-trigger-builder config)
+                 (simple-schedule config)))
 
 (defmethod trigger-builder :cron
   [config]
-  (-> (base-trigger-builder config)
-      (.withSchedule (cron-schedule config))))
+  (.withSchedule ^TriggerBuilder (base-trigger-builder config)
+                 (cron-schedule config)))
 
 (defrecord ProxyJob [proxied-job]
   Job
@@ -88,8 +88,7 @@
 (defn proxy
   [job]
   (let [{:keys [identity description recover? durable?]} job]
-    (.build (cond-> (JobBuilder/newJob)
-              true (.ofType ProxyJob)
+    (.build (cond-> (.ofType (JobBuilder/newJob) ProxyJob)
               (seq identity) (.withIdentity (first identity) (second identity))
               description (.withDescription description)
               (boolean? recover?) (.requestRecovery recover?)

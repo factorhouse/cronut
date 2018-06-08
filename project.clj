@@ -1,4 +1,4 @@
-(defproject com.troy-west/cronut "0.1.0-SNAPSHOT"
+(defproject com.troy-west/cronut "0.1.0"
 
   :description "Scheduled Execution via Quartzite and Integrant"
 
@@ -23,12 +23,10 @@
 
   :release-tasks [["vcs" "assert-committed"]
                   ["change" "version" "leiningen.release/bump-version" "release"]
-                  ["modules" "change" "version" "leiningen.release/bump-version" "release"]
                   ["vcs" "commit"]
                   ["vcs" "tag"]
-                  ["modules" "deploy"]
+                  ["deploy"]
                   ["change" "version" "leiningen.release/bump-version"]
-                  ["modules" "change" "version" "leiningen.release/bump-version"]
                   ["vcs" "commit"]
                   ["vcs" "push"]]
 
