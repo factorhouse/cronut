@@ -51,14 +51,31 @@ e.g
 The :job in every scheduled item must implement the org.quartz.Job interface
 
 The expectation being that every 'job' in your Integrant system will reify that interface, either directly via `reify`
-or by returning a defrecord that implements the interface. Both examples shown below.
+or by returning a defrecord that implements the interface. e.g.
+
+````clojure
+(defmethod ig/init-key :test.job/one
+  [_ config]
+  (reify Job
+    (execute [this job-context]
+      (log/info "Reified Impl:" config))))
+
+(defrecord TestDefrecordJobImpl [identity description recover? durable? test-dep]
+  Job
+  (execute [this job-context]
+    (log/info "Defrecord Impl:" this)))
+
+(defmethod ig/init-key :test.job/two
+  [_ config]
+  (map->TestDefrecordJobImpl config))
+````
 
 Cronut supports further Quartz configuration of jobs (identity, description, recovery, and priority) by expecting those
 values to be assoc'd onto your job. You do not have to set them (in fact in most cases you can likely ignore them),
 however if you do wan't that control you will likely use the defrecord approach as opposed to the simpler reify option:
 
-e.g.
-
+e.g. 
+ 
 ````clojure
 :test.job/two     {:identity    ["job-two" "test"]
                    :description "test job"
