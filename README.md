@@ -84,8 +84,6 @@ and pass that configuration through edn, e.g.
                    :dep-two     #ig/ref :test.job/one}
 ````                    
 
-See: example, below and tests for more details.
-
 ### The :trigger
 
 The :trigger in every scheduled item must resolve to an org.quartz.Trigger of some variety or another, to ease that 
