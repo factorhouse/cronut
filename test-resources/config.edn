@@ -10,11 +10,14 @@
                     :dep-two     #ig/ref :test.job/one}
 
  :cronut/scheduler {:time-zone "Australia/Melbourne"
-                    :schedule  [{:job     #ig/ref :test.job/one
+                    :schedule  [;; basic interval
+                                {:job     #ig/ref :test.job/one
                                  :trigger #cronut/trigger {:type      :simple
                                                            :interval  2
                                                            :time-unit :seconds
                                                            :repeat    :forever}}
+
+                                ;; full interval
                                 {:job     #ig/ref :test.job/two
                                  :trigger #cronut/trigger {:type        :simple
                                                            :interval    3000
@@ -23,5 +26,27 @@
                                                            :description "test trigger"
                                                            :start       #inst "2019-01-01T00:00:00.000-00:00"
                                                            :end         #inst "2019-02-01T00:00:00.000-00:00"
-                                                           :priority    5}}]}}
+                                                           :priority    5}}
 
+                                ;; shortcut interval
+                                {:job     #ig/ref :test.job/two
+                                 :trigger #cronut/interval 3500}
+
+                                ;; basic cron
+                                {:job     #ig/ref :test.job/two
+                                 :trigger #cronut/trigger {:type :cron
+                                                           :cron "*/4 * * * * ?"}}
+
+                                ;; full cron
+                                {:job     #ig/ref :test.job/two
+                                 :trigger #cronut/trigger {:type        :cron
+                                                           :cron        "*/6 * * * * ?"
+                                                           :identity    ["trigger-five" "test"]
+                                                           :description "another-test trigger"
+                                                           :start       #inst "2018-01-01T00:00:00.000-00:00"
+                                                           :end         #inst "2029-02-01T00:00:00.000-00:00"
+                                                           :priority    4}}
+
+                                ;; shortcut cron
+                                {:job     #ig/ref :test.job/two
+                                 :trigger #cronut/cron "*/8 * * * * ?"}]}}
