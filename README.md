@@ -72,10 +72,9 @@ or by returning a defrecord that implements the interface. e.g.
 
 Cronut supports further Quartz configuration of jobs (identity, description, recovery, and priority) by expecting those
 values to be assoc'd onto your job. You do not have to set them (in fact in most cases you can likely ignore them),
-however if you do wan't that control you will likely use the defrecord approach as opposed to the simpler reify option:
+however if you do want that control you will likely use the defrecord approach as opposed to the simpler reify option
+and pass that configuration through edn, e.g.
 
-e.g. 
- 
 ````clojure
 :test.job/two     {:identity    ["job-two" "test"]
                    :description "test job"
