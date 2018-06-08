@@ -35,7 +35,7 @@ The scheduler supports two fields:
 1. (optional) time-zone: default for the scheduler, where triggers support it. e.g. "Australia/Melbourne"
 2. (required) schedule: a sequence of 'items' to schedule, each being a map containing a :job and :trigger
 
-e.g
+e.g.
 
 ````clojure
 :cronut/scheduler {:time-zone "Australia/Melbourne"
@@ -149,6 +149,16 @@ See: troy-west.cronut/init-system for a convenience implementation if you prefer
   ([config readers]
    (ig/init (edn/read-string {:readers (merge data-readers readers)} config))))
 ````
+
+## Quartz Specifics and Remaining Todo's
+
+Cronut supports a single Quartz Scheduler (optionally configured with quartz.properties on the classpath).
+
+The default StdScheduler is reset on each instantiation of a system a scheduler.
+
+All Job and Trigger configuration should be available from configuration.
+
+Cronut currently supports Simple and Cron scheduling. Contributions warmly welcomed. 
 
 ## Example System
 
