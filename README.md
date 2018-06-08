@@ -23,6 +23,7 @@ How does Cronut differ?
 4. Latest version of Quartz
 5. Tagged literals to shortcut common use-cases (#cronut/cron, #cronut/interval)
 6. Easily extensible for further triggers / tagged literals
+7. Zero dependencies other than Clojure, Quartz, and Integrant.
 
 # Usage
 
