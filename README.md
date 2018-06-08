@@ -32,7 +32,7 @@ Cronut provides lifecycle implementation for the Quartz Scheduler, exposed via I
 
 The scheduler supports two fields:
 
-1. (optional) time-zone: e.g. "Australia/Pacific"
+1. (optional) time-zone: default for the scheduler, where triggers support it. e.g. "Australia/Melbourne"
 2. (required) schedule: a sequence of 'items' to schedule, each being a map containing a :job and :trigger
 
 e.g
