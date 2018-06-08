@@ -29,6 +29,29 @@ Cronut differs from Quartzite / Twarc in that:
 
 # Usage
 
+## :cronut/scheduler
+
+Cronut provides lifecycle implementation for the Quartz Scheduler, exposed via Integrant bindings.
+
+The scheduler supports two fields:
+
+1. (optional) time-zone: e.g. "Australia/Pacific"
+2. (required) schedule: a sequence of maps that contains :job and a :trigger (a scheduled item)
+
+## :job
+
+The :job in every scheduled item must implement the org.quartz.Job interface
+
+The expectation being that every 'job' in your Integrant system will reify that interface, either directly via `reify`
+or by returning a defrecord that implements the interface. Both examples shown below.
+
+## :trigger
+
+The :trigger in every scheduled item must resolve to an org.quartz.Trigger of some variety or another, to ease that 
+resolution Cronut provides a variety of data-readers and Integrant lifecycle bindings.
+
+## Example System
+
 Example: Two jobs and three triggers in a simple Integrant system. 
 
 ````clojure
