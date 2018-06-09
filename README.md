@@ -130,7 +130,7 @@ This tagged literal calls a Clojure multi-method that is open for extension, see
 
 ## Integrant
 
-When initializing an Integrant system you will need to provide the Cronut tagged literals.
+When initializing an Integrant system you will need to provide the Cronut data readers.
 
 See: `troy-west.cronut/init-system` for a convenience implementation if you prefer:
 
