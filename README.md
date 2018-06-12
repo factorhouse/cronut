@@ -153,7 +153,7 @@ See: `troy-west.cronut/init-system` for a convenience implementation if you pref
 
 Cronut supports a single Quartz Scheduler (optionally configured with quartz.properties on the classpath).
 
-The default StdScheduler is reset on each instantiation of a system a scheduler.
+The default StdScheduler is reset and re-used on each instantiation of a :cronut/scheduler.
 
 All Job and Trigger configuration should be available from configuration.
 
