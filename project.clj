@@ -1,4 +1,4 @@
-(defproject com.troy-west/cronut "0.1.1-SNAPSHOT"
+(defproject com.troy-west/cronut "0.1.1"
 
   :description "Clojure Scheduled Execution via Quartzite and Integrant"
 
