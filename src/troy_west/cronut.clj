@@ -28,7 +28,7 @@
       :seconds (.withIntervalInSeconds schedule interval)
       :minutes (.withIntervalInMinutes schedule interval)
       :hours (.withIntervalInHours schedule interval)
-      nil (.withIntervalInMilliseconds schedule interval))
+      nil (when interval (.withIntervalInMilliseconds schedule interval)))
     (case misfire
       :fire-now (.withMisfireHandlingInstructionFireNow schedule)
       :ignore (.withMisfireHandlingInstructionIgnoreMisfires schedule)
