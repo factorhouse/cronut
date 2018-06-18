@@ -129,7 +129,7 @@ The #cronut/trigger tagged literal supports the full set of Quartz configuration
 This tagged literal calls a Clojure multi-method that is open for extension, see: [troy-west.cronut/trigger-builder](https://github.com/troy-west/cronut/blob/01ada3182ff18ec4a78095cdba80d43f660d8c85/src/troy_west/cronut.clj#L58)
 
 You should implement the remaining two Quartz Triggers (CalendarInterval and DailyTimeInterval), create the Tagged
-Literal for each, and raise a PR. Go on it will be fun.
+Literal for each, and raise a PR. Go on it will be fun, open issues exist for both triggers.
 
 ## Integrant
 
