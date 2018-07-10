@@ -5,7 +5,7 @@
   :url "https://github.com/troy-west/cronut"
 
   :license {:name "Eclipse Public License"
-            :url  "http://www.eclipse.org/legal/epl-v10.html"}
+            :url  "http://www.eclipse.org/legal/epl-v20.html"}
 
   :plugins [[lein-cljfmt "0.5.7" :exclusions [org.clojure/clojure]]
             [jonase/eastwood "0.2.5" :exclusions [org.clojure/clojure]]
