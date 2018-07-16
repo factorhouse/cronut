@@ -67,23 +67,27 @@
   (.withSchedule ^TriggerBuilder (base-trigger-builder config)
                  (cron-schedule config)))
 
-(defrecord ProxyJob [proxied-job]
+(defn default-proxy-fn
+  [job job-context]
+  (try
+    (.execute ^Job job job-context)
+    (catch JobExecutionException ex
+      (throw ex))
+    (catch Exception ex
+      (throw (JobExecutionException. ^Exception ex)))))
+
+(defrecord ProxyJob [proxied-job proxy-fn]
   Job
   (execute [_ job-context]
-    (try
-      (.execute ^Job proxied-job job-context)
-      (catch JobExecutionException ex
-        (throw ex))
-      (catch Exception ex
-        (throw (JobExecutionException. ^Exception ex))))))
+   (proxy-fn proxied-job job-context)))
 
 (defn job-factory
-  [scheduled]
+  [scheduled proxy-fn]
   (reify JobFactory
     (newJob [_ bundle _]
       (let [job-detail (.getJobDetail ^TriggerFiredBundle bundle)
             job-key    (.getKey job-detail)]
-        (->ProxyJob (get scheduled job-key))))))
+        (->ProxyJob (get scheduled job-key) proxy-fn)))))
 
 (defn proxy
   [job]
@@ -95,7 +99,7 @@
               (boolean? durable?) (.storeDurably durable?)))))
 
 (defn activate
-  [^Scheduler scheduler schedule]
+  [^Scheduler scheduler schedule proxy-fn]
   (.clear scheduler)
   (loop [schedule  schedule
          scheduled {}
@@ -111,13 +115,13 @@
           (log/info "scheduling new job" trigger proxy-detail)
           (.scheduleJob scheduler proxy-detail (.build trigger))
           (recur (rest schedule) (assoc scheduled job-key job) (assoc proxies job proxy-detail))))
-      (.setJobFactory scheduler (job-factory scheduled))))
+      (.setJobFactory scheduler (job-factory scheduled (or proxy-fn default-proxy-fn)))))
   (.start scheduler)
   scheduler)
 
 (defn initialize
   [config]
-  (let [{:keys [schedule time-zone update-check?]} config]
+  (let [{:keys [schedule proxy-fn time-zone update-check?]} config]
     (log/infof "initializing schedule of [%s] jobs" (count schedule))
     (when time-zone
       (log/infof "with default time-zone %s" time-zone)
@@ -125,7 +129,7 @@
     (when-not update-check?
       (System/setProperty "org.terracotta.quartz.skipUpdateCheck" "true")
       (log/infof "with quartz update check disabled" time-zone))
-    (activate (StdSchedulerFactory/getDefaultScheduler) schedule)))
+    (activate (StdSchedulerFactory/getDefaultScheduler) schedule proxy-fn)))
 
 (defn shortcut-interval
   "Trigger immediately, at an interval-ms, run forever (well that's optimistic but you get the idea)"

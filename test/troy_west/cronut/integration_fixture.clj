@@ -3,8 +3,10 @@
             [clojure.java.io :as io]
             [troy-west.cronut :as cronut]
             [integrant.core :as ig]
+            [metrics.core :as metrics]
+            [metrics.meters :as meters]
             [clojure.tools.logging :as log])
-  (:import (org.quartz Job)))
+  (:import (org.quartz Job JobExecutionException)))
 
 (defonce system (atom {}))
 
@@ -26,6 +28,20 @@
 (defmethod ig/init-key :test.job/two
   [_ config]
   (map->TestDefrecordJobImpl config))
+
+(defmethod ig/init-key :tmetric/registry
+  [_ config]
+  (metrics/new-registry))
+
+(defmethod ig/init-key :scheduler/proxy-fn
+  [_ config]
+  (let [registry (:metric/registry config)]
+    (fn [job job-context]
+      (try
+        (meters/mark! (meters/meter ""))
+        (.execute ^Job job job-context)
+        (catch Exception ex
+          (throw (JobExecutionException. ^Exception ex)))))))
 
 (defn initialize!
   []
