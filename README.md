@@ -168,11 +168,13 @@ Cronut supports a single Quartz Scheduler (optionally configured with quartz.pro
 
 The default StdScheduler is reset and re-used on each instantiation of a :cronut/scheduler.
 
-All Job and Trigger configuration should be available from configuration.
+Cron triggers default to using the system time-zone if no trigger time-zone specifically set.
 
-Cronut currently supports Simple and Cron scheduling. Contributions warmly welcomed.
+Tickets are open for the following extensions (contributions warmly welcomed): 
 
-Cron triggers default to using the system time-zone, if no trigger time-zone specifically set.
+* #3 Implement DailyTimeInterval Trigger
+* #5 Implement CalendarInverval Trigger
+* #6 Pluggable SchedulerFactory (support more than one scheduler per JVM)
 
 ## Example System
 
