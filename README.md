@@ -164,7 +164,7 @@ See: `troy-west.cronut/init-system` for a convenience implementation if you pref
 
 ## Quartz Specifics and Remaining Todo's
 
-Cronut supports a single Quartz Scheduler (optionally configured with quartz.properties on the classpath).
+Cronut supports a single Quartz Scheduler per JVM (optionally configured with [quartz.properties](http://www.quartz-scheduler.org/documentation/quartz-2.x/configuration/ConfigMain.html)).
 
 The default StdScheduler is reset and re-used on each instantiation of a :cronut/scheduler.
 
