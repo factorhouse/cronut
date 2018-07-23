@@ -117,14 +117,11 @@
 
 (defn initialize
   [config]
-  (let [{:keys [schedule time-zone update-check?]} config]
+  (let [{:keys [schedule update-check?]} config]
     (log/infof "initializing schedule of [%s] jobs" (count schedule))
-    (when time-zone
-      (log/infof "with default time-zone %s" time-zone)
-      (TimeZone/setDefault (TimeZone/getTimeZone ^String time-zone)))
     (when-not update-check?
       (System/setProperty "org.terracotta.quartz.skipUpdateCheck" "true")
-      (log/infof "with quartz update check disabled" time-zone))
+      (log/infof "with quartz update check disabled"))
     (activate (StdSchedulerFactory/getDefaultScheduler) schedule)))
 
 (defn shortcut-interval

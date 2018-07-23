@@ -23,7 +23,7 @@ How does Cronut differ?
 4. Latest version of Quartz
 5. Tagged literals to shortcut common use-cases (#cronut/cron, #cronut/interval)
 6. Easily extensible for further triggers / tagged literals
-7. Zero dependencies other than Clojure, Quartz, and Integrant.
+7. Zero dependencies other than Clojure, Quartz, and Integrant
 
 # Usage
 
@@ -33,14 +33,13 @@ Cronut provides lifecycle implementation for the Quartz Scheduler, exposed via I
 
 The scheduler supports two fields:
 
-1. (optional) time-zone: default for the scheduler, where triggers support it. e.g. "Australia/Melbourne"
+1. (optional) update-check? when true check for Quartz updates on system start
 2. (required) schedule: a sequence of 'items' to schedule, each being a map containing a :job and :trigger
 
 e.g.
 
 ````clojure
-:cronut/scheduler {:time-zone "Australia/Melbourne"
-                   :schedule  [{:job     #ig/ref :test.job/two
+:cronut/scheduler {:schedule  [{:job     #ig/ref :test.job/two
                                 :trigger #cronut/interval 3500}
                                {:job     #ig/ref :test.job/two
                                 :trigger #cronut/cron "*/8 * * * * ?"}]}}
@@ -95,7 +94,7 @@ resolution Cronut provides the following tagged literals:
 
 A job is scheduled to run on a cron by using the `#cronut/cron` tagged literal followed by a valid cron expression
 
-The job will start immediately when the system is initialized
+The job will start immediately when the system is initialized, and runs in the default system time-zone
 
 ````clojure
 :trigger #cronut/cron "*/8 * * * * ?"
@@ -116,14 +115,25 @@ Both #cronut/cron and #cronut/interval are effectively shortcuts to full trigger
 The #cronut/trigger tagged literal supports the full set of Quartz configuration for Simple and Cron triggers:
 
 ````clojure
+;; interval
 :trigger #cronut/trigger {:type        :simple
                           :interval    3000
                           :repeat      :forever
                           :identity    ["trigger-two" "test"]
-                          :description "test trigger"
+                          :description "sample simple trigger"
                           :start       #inst "2019-01-01T00:00:00.000-00:00"
                           :end         #inst "2019-02-01T00:00:00.000-00:00"
                           :priority    5}
+                          
+;;cron
+:trigger #cronut/trigger {:type        :cron
+                          :cron        "*/6 * * * * ?"
+                          :identity    ["trigger-five" "test"]
+                          :description "sample cron trigger"
+                          :start       #inst "2018-01-01T00:00:00.000-00:00"
+                          :end         #inst "2029-02-01T00:00:00.000-00:00"
+                          :time-zone   "Australia/Melbourne"
+                          :priority    4}
 ````
 
 This tagged literal calls a Clojure multi-method that is open for extension, see: [troy-west.cronut/trigger-builder](https://github.com/troy-west/cronut/blob/01ada3182ff18ec4a78095cdba80d43f660d8c85/src/troy_west/cronut.clj#L58)
@@ -160,7 +170,9 @@ The default StdScheduler is reset and re-used on each instantiation of a :cronut
 
 All Job and Trigger configuration should be available from configuration.
 
-Cronut currently supports Simple and Cron scheduling. Contributions warmly welcomed. 
+Cronut currently supports Simple and Cron scheduling. Contributions warmly welcomed.
+
+Cron triggers default to using the system time-zone, if no trigger time-zone specifically set.
 
 ## Example System
 
