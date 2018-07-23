@@ -3,10 +3,36 @@
   (:require [clojure.edn :as edn]
             [clojure.tools.logging :as log]
             [integrant.core :as ig])
-  (:import (org.quartz Scheduler Job SimpleScheduleBuilder JobExecutionException JobBuilder TriggerBuilder JobDetail CronScheduleBuilder)
+  (:import (java.util TimeZone)
+           (java.lang.reflect Field)
+           (org.quartz Scheduler Job SimpleScheduleBuilder JobExecutionException JobBuilder TriggerBuilder JobDetail CronScheduleBuilder ScheduleBuilder CronExpression)
            (org.quartz.impl StdSchedulerFactory)
-           (org.quartz.spi JobFactory TriggerFiredBundle)
-           (java.util TimeZone)))
+           (org.quartz.spi JobFactory TriggerFiredBundle)))
+
+(defn private-field
+  [obj field-name]
+  (let [klazz (.getClass ^Object obj)
+        field (.getDeclaredField klazz field-name)]
+    (.setAccessible ^Field field true)
+    (.get field obj)))
+
+(defprotocol TimeZoneDefaulter
+  (default-time-zone [this tz]))
+
+(extend-protocol TimeZoneDefaulter
+
+  Object
+  (default-time-zone [_ _])
+
+  TriggerBuilder
+  (default-time-zone [tb tz]
+   (default-time-zone (private-field tb "scheduleBuilder") tz))
+
+  CronScheduleBuilder
+  (default-time-zone [csb tz]
+   (let [cron-exp ^CronExpression (private-field csb "cronExpression")]
+     (when-not (private-field cron-exp "timeZone")
+       (.setTimeZone cron-exp tz)))))
 
 (defn base-trigger-builder
   "Provide a base trigger-builder from configuration"
