@@ -172,9 +172,9 @@ Cron triggers default to using the system time-zone if no trigger time-zone spec
 
 Tickets are open for the following extensions (contributions warmly welcomed): 
 
-* #3 Implement DailyTimeInterval Trigger
-* #5 Implement CalendarInverval Trigger
-* #6 Pluggable SchedulerFactory (support more than one scheduler per JVM)
+* Implement DailyTimeInterval Trigger
+* Implement CalendarInverval Trigger
+* Pluggable SchedulerFactory (support more than one scheduler per JVM)
 
 ## Example System
 
@@ -191,8 +191,7 @@ Job Two is executed on multiple schedules as defined by the latter three trigger
                     :durable?    false
                     :dep-two     #ig/ref :test.job/one}
 
- :cronut/scheduler {:time-zone "Australia/Melbourne"
-                    :schedule  [;; basic interval
+ :cronut/scheduler {:schedule  [;; basic interval
                                 {:job     #ig/ref :test.job/one
                                  :trigger #cronut/trigger {:type      :simple
                                                            :interval  2

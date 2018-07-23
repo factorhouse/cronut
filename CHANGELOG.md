@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
+## [0.2.0] - 2018-07-23
+
+- Breaking: remove :time-zone configuration at a scheduler level (see issue #5 for more)
+
 ## [0.1.1] - 2018-06-15
 
 - Minor bugfix for zero-argument (run once, immediately) interval execution
