@@ -145,7 +145,7 @@ Literal for each, and raise a PR. Go on it will be fun, open issues exist for bo
 
 When initializing an Integrant system you will need to provide the Cronut data readers.
 
-See: `troy-west.cronut/init-system` for a convenience implementation if you prefer:
+See: `troy-west.cronut/data-readers` for convenience.
 
 ````clojure
 (def data-readers
@@ -153,13 +153,16 @@ See: `troy-west.cronut/init-system` for a convenience implementation if you pref
    'cronut/trigger  troy-west.cronut/trigger-builder
    'cronut/cron     troy-west.cronut/shortcut-cron
    'cronut/interval troy-west.cronut/shortcut-interval})
+````
 
+e.g.
+````clojure
 (defn init-system
   "Convenience for starting integrant systems with cronut data-readers"
   ([config]
    (init-system config nil))
   ([config readers]
-   (ig/init (edn/read-string {:readers (merge data-readers readers)} config))))
+   (ig/init (edn/read-string {:readers (merge cronut/data-readers readers)} config))))
 ````
 
 ## Quartz Specifics and Remaining Todo's
