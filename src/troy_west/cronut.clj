@@ -150,18 +150,6 @@
   (shutdown scheduler))
 
 (def data-readers
-  {'ig/ref          ig/ref
-   'cronut/trigger  troy-west.cronut/trigger-builder
+  {'cronut/trigger  troy-west.cronut/trigger-builder
    'cronut/cron     troy-west.cronut/shortcut-cron
    'cronut/interval troy-west.cronut/shortcut-interval})
-
-(defn init-system
-  "Convenience for starting integrant systems with cronut data-readers"
-  ([config]
-   (init-system config nil))
-  ([config readers]
-   (ig/init (edn/read-string {:readers (merge data-readers readers)} config))))
-
-(defn halt-system
-  [system]
-  (ig/halt! system))
