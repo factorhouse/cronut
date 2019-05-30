@@ -13,7 +13,7 @@
 
   :dependencies [[org.clojure/clojure "1.10.0"]
                  [org.clojure/tools.logging "0.4.1"]
-                 [org.quartz-scheduler/quartz "2.3.0" :exclusions [org.slf4j/slf4j-api]]
+                 [org.quartz-scheduler/quartz "2.3.1" :exclusions [org.slf4j/slf4j-api]]
                  [integrant "0.7.0" :scope "provided"]]
 
   :profiles {:dev {:resource-paths ["test-resources"]
