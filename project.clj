@@ -11,9 +11,9 @@
             [jonase/eastwood "0.2.5" :exclusions [org.clojure/clojure]]
             [lein-kibit "0.1.6" :exclusions [org.clojure/clojure org.clojure/tools.reader]]]
 
-  :dependencies [[org.clojure/clojure "1.10.0"]
-                 [org.clojure/tools.logging "0.4.1"]
-                 [org.quartz-scheduler/quartz "2.3.1" :exclusions [org.slf4j/slf4j-api]]
+  :dependencies [[org.clojure/clojure "1.10.1"]
+                 [org.clojure/tools.logging "0.5.0"]
+                 [org.quartz-scheduler/quartz "2.3.2" :exclusions [org.slf4j/slf4j-api]]
                  [integrant "0.7.0" :scope "provided"]]
 
   :profiles {:dev {:resource-paths ["test-resources"]
