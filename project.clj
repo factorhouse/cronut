@@ -7,14 +7,14 @@
   :license {:name "Eclipse Public License"
             :url  "http://www.eclipse.org/legal/epl-v20.html"}
 
-  :plugins [[lein-cljfmt "0.5.7" :exclusions [org.clojure/clojure]]
-            [jonase/eastwood "0.2.5" :exclusions [org.clojure/clojure]]
-            [lein-kibit "0.1.6" :exclusions [org.clojure/clojure org.clojure/tools.reader]]]
+  :plugins [[lein-cljfmt "0.6.6" :exclusions [org.clojure/clojure]]
+            [jonase/eastwood "0.3.7" :exclusions [org.clojure/clojure]]
+            [lein-kibit "0.1.8" :exclusions [org.clojure/clojure org.clojure/tools.reader]]]
 
   :dependencies [[org.clojure/clojure "1.10.1"]
-                 [org.clojure/tools.logging "0.5.0"]
+                 [org.clojure/tools.logging "0.6.0"]
                  [org.quartz-scheduler/quartz "2.3.2" :exclusions [org.slf4j/slf4j-api]]
-                 [integrant "0.7.0" :scope "provided"]]
+                 [integrant "0.8.0" :scope "provided"]]
 
   :profiles {:dev {:resource-paths ["test-resources"]
                    :dependencies   [[ch.qos.logback/logback-classic "1.2.3"]]}}
