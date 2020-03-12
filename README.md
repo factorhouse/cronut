@@ -149,8 +149,7 @@ See: `troy-west.cronut/data-readers` for convenience.
 
 ````clojure
 (def data-readers
-  {'ig/ref          ig/ref
-   'cronut/trigger  troy-west.cronut/trigger-builder
+  {'cronut/trigger  troy-west.cronut/trigger-builder
    'cronut/cron     troy-west.cronut/shortcut-cron
    'cronut/interval troy-west.cronut/shortcut-interval})
 ````
@@ -162,7 +161,7 @@ e.g.
   ([config]
    (init-system config nil))
   ([config readers]
-   (ig/init (edn/read-string {:readers (merge cronut/data-readers readers)} config))))
+   (ig/init (ig/read-string {:readers (merge cronut/data-readers readers)} config))))
 ````
 
 ## Quartz Specifics and Remaining Todo's
