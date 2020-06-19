@@ -12,7 +12,7 @@
             [lein-kibit "0.1.8" :exclusions [org.clojure/clojure org.clojure/tools.reader]]]
 
   :dependencies [[org.clojure/clojure "1.10.1"]
-                 [org.clojure/tools.logging "1.0.0"]
+                 [org.clojure/tools.logging "1.1.0"]
                  [org.quartz-scheduler/quartz "2.3.2" :exclusions [org.slf4j/slf4j-api]]
                  [integrant "0.8.0" :scope "provided"]]
 
