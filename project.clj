@@ -17,7 +17,8 @@
                  [integrant "0.8.0" :scope "provided"]]
 
   :profiles {:dev {:resource-paths ["test-resources"]
-                   :dependencies   [[ch.qos.logback/logback-classic "1.2.3"]]}}
+                   :dependencies   [[ch.qos.logback/logback-classic "1.2.3"]
+                                    [org.clojure/core.async "1.2.603"]]}}
 
   :deploy-repositories [["releases" {:url "https://clojars.org/repo/" :creds :gpg}]]
 

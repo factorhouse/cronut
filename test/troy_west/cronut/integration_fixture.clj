@@ -3,8 +3,10 @@
             [clojure.java.io :as io]
             [clojure.tools.logging :as log]
             [troy-west.cronut :as cronut]
-            [integrant.core :as ig])
-  (:import (org.quartz Job)))
+            [integrant.core :as ig]
+            [clojure.core.async :as async])
+  (:import (org.quartz Job)
+           (java.util UUID)))
 
 (defrecord TestDefrecordJobImpl [identity description recover? durable? test-dep]
   Job
@@ -24,6 +26,15 @@
 (defmethod ig/init-key :test.job/two
   [_ config]
   (map->TestDefrecordJobImpl config))
+
+(defmethod ig/init-key :test.job/three
+  [_ config]
+  (reify Job
+    (execute [this job-context]
+      (let [rand-id (str (UUID/randomUUID))]
+        (log/info rand-id "Reified Impl (Job Delay 7s):" config)
+        (async/<!! (async/timeout 7000))
+        (log/info rand-id "Finished")))))
 
 (defn init-system
   "Convenience for starting integrant systems with cronut data-readers"

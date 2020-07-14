@@ -106,7 +106,7 @@
               (boolean? durable?) (.storeDurably durable?)))))
 
 (defn activate
-  [^Scheduler scheduler schedule opts]
+  [^Scheduler scheduler schedule global-opts]
   (.clear scheduler)
   (loop [schedule  schedule
          scheduled {}
@@ -114,15 +114,16 @@
     (if-let [{:keys [job ^TriggerBuilder trigger]} (first schedule)]
       (if-let [previously-scheduled ^JobDetail (get proxies job)]
         (let [built (.build (.forJob trigger previously-scheduled))]
-          (log/info "scheduling new trigger for existing job" trigger previously-scheduled)
+          (log/info "scheduling new trigger for existing job" built previously-scheduled)
           (.scheduleJob scheduler built)
           (recur (rest schedule) scheduled proxies))
-        (let [proxy-detail ^JobDetail (proxy job opts)
-              job-key      (.getKey proxy-detail)]
-          (log/info "scheduling new job" trigger proxy-detail)
-          (.scheduleJob scheduler proxy-detail (.build trigger))
+        (let [proxy-detail ^JobDetail (proxy job global-opts)
+              job-key      (.getKey proxy-detail)
+              built        (.build trigger)]
+          (log/info "scheduling new job" built proxy-detail)
+          (.scheduleJob scheduler proxy-detail built)
           (recur (rest schedule) (assoc scheduled job-key job) (assoc proxies job proxy-detail))))
-      (.setJobFactory scheduler (job-factory scheduled opts))))
+      (.setJobFactory scheduler (job-factory scheduled global-opts))))
   (.start scheduler)
   scheduler)
 
