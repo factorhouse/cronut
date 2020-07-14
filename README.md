@@ -32,8 +32,8 @@ Cronut provides lifecycle implementation for the Quartz Scheduler, exposed via I
 The scheduler supports the following fields:
 
 1. (required) :schedule - a sequence of 'items' to schedule, each being a map containing a :job and :trigger
-2. (optional, default false) :disallowConcurrentExecution? - all jobs run with the @DisableConcurrentExecution quartz annotation
-2. (optional, default false) :update-check? when true check for Quartz updates on system start
+2. (optional, default false) :disallowConcurrentExecution? - run all jobs with @DisableConcurrentExecution
+2. (optional, default false) :update-check? check for Quartz updates on system startup.
 
 e.g.
 
