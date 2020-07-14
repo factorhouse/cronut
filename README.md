@@ -31,10 +31,11 @@ How does Cronut differ?
 
 Cronut provides lifecycle implementation for the Quartz Scheduler, exposed via Integrant / `:cronut/scheduler`
 
-The scheduler supports two fields:
+The scheduler supports the following fields:
 
-1. (optional) update-check? when true check for Quartz updates on system start
-2. (required) schedule: a sequence of 'items' to schedule, each being a map containing a :job and :trigger
+1. (required) :schedule - a sequence of 'items' to schedule, each being a map containing a :job and :trigger
+2. (optional, default false) :disallowConcurrentExecution? - all jobs run with the @DisableConcurrentExecution quartz annotation
+2. (optional, default false) :update-check? when true check for Quartz updates on system start
 
 e.g.
 
@@ -42,8 +43,18 @@ e.g.
 :cronut/scheduler {:schedule  [{:job     #ig/ref :test.job/two
                                 :trigger #cronut/interval 3500}
                                {:job     #ig/ref :test.job/two
-                                :trigger #cronut/cron "*/8 * * * * ?"}]}}
+                                :trigger #cronut/cron "*/8 * * * * ?"
+                                :misfire :do-nothing}]
+                   :disallowConcurrentExecution? true}}
 ````
+
+### Controlling Concurrent Execution
+
+Cronut 0.2.6+ supports the option to disable concurrent execution of jobs (see configuration, above).
+
+This flag is set at a global level and affects all scheduled jobs. Raise a PR if you want to intermingle concurrency.
+
+If you disable concurrent ob execution ensure you understand Quartz Misfire options and remember to set `org.quartz.jobStore.misfireThreshold=[some ms value]` in your quartz.properties file. See Quartz documentation for more information. 
 
 ### The :job
 
@@ -184,7 +195,7 @@ Tickets are open for the following extensions (contributions warmly welcomed):
 
 Given a simple Integrant configuration of two jobs and four triggers.
 
-Job Two is executed on multiple schedules as defined by the latter three triggers. 
+Job Two executes on multiple schedules as defined by the latter three triggers. 
 
 ````clojure
 {:test.job/one     {}

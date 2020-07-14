@@ -1,7 +1,11 @@
 # Change Log
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
-## [0.2.1 - 0.2.4] - 2019-03-12
+## [0.2.6] - 2020-07-14
+
+- Suppport global :disallowConcurrentExecution option (you will want to understand misfires if you use this).
+
+## [0.2.1 - 0.2.5] - 2019-06-19
 
 - Minor dependency bumps and README improvements (#9)
 
