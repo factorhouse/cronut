@@ -123,6 +123,7 @@ The #cronut/trigger tagged literal supports the full set of Quartz configuration
                           :description "sample simple trigger"
                           :start       #inst "2019-01-01T00:00:00.000-00:00"
                           :end         #inst "2019-02-01T00:00:00.000-00:00"
+                          :misfire     :ignore
                           :priority    5}
                           
 ;;cron
@@ -133,6 +134,7 @@ The #cronut/trigger tagged literal supports the full set of Quartz configuration
                           :start       #inst "2018-01-01T00:00:00.000-00:00"
                           :end         #inst "2029-02-01T00:00:00.000-00:00"
                           :time-zone   "Australia/Melbourne"
+                          :misfire     :fire-and-proceed
                           :priority    4}
 ````
 
