@@ -32,4 +32,7 @@
 
   :aliases {"smoke" ["do" ["clean"] ["check"] ["test"] ["kibit"] ["cljfmt" "check"] ["eastwood"]]}
 
+  :source-paths ["src"]
+  :test-paths ["test"]
+
   :pedantic? :abort)

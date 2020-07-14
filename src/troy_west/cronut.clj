@@ -1,9 +1,8 @@
 (ns troy-west.cronut
   (:refer-clojure :exclude [proxy])
-  (:require [clojure.edn :as edn]
-            [clojure.tools.logging :as log]
+  (:require [clojure.tools.logging :as log]
             [integrant.core :as ig])
-  (:import (org.quartz Scheduler Job SimpleScheduleBuilder JobExecutionException JobBuilder TriggerBuilder JobDetail CronScheduleBuilder)
+  (:import (org.quartz Scheduler Job SimpleScheduleBuilder JobExecutionException JobBuilder TriggerBuilder JobDetail CronScheduleBuilder DisallowConcurrentExecution)
            (org.quartz.impl StdSchedulerFactory)
            (org.quartz.spi JobFactory TriggerFiredBundle)
            (java.util TimeZone)))
@@ -67,6 +66,16 @@
   (.withSchedule ^TriggerBuilder (base-trigger-builder config)
                  (cron-schedule config)))
 
+(defrecord ^{DisallowConcurrentExecution true} SerialProxyJob [proxied-job]
+  Job
+  (execute [_ job-context]
+    (try
+      (.execute ^Job proxied-job job-context)
+      (catch JobExecutionException ex
+        (throw ex))
+      (catch Exception ex
+        (throw (JobExecutionException. ^Exception ex))))))
+
 (defrecord ProxyJob [proxied-job]
   Job
   (execute [_ job-context]
@@ -78,24 +87,26 @@
         (throw (JobExecutionException. ^Exception ex))))))
 
 (defn job-factory
-  [scheduled]
+  [scheduled opts]
   (reify JobFactory
     (newJob [_ bundle _]
       (let [job-detail (.getJobDetail ^TriggerFiredBundle bundle)
             job-key    (.getKey job-detail)]
-        (->ProxyJob (get scheduled job-key))))))
+        (if (:disallowConcurrentExecution? opts)
+          (->SerialProxyJob (get scheduled job-key))
+          (->ProxyJob (get scheduled job-key)))))))
 
 (defn proxy
-  [job]
+  [job opts]
   (let [{:keys [identity description recover? durable?]} job]
-    (.build (cond-> (.ofType (JobBuilder/newJob) ProxyJob)
+    (.build (cond-> (.ofType (JobBuilder/newJob) (if (:disallowConcurrentExecution? opts) SerialProxyJob ProxyJob))
               (seq identity) (.withIdentity (first identity) (second identity))
               description (.withDescription description)
               (boolean? recover?) (.requestRecovery recover?)
               (boolean? durable?) (.storeDurably durable?)))))
 
 (defn activate
-  [^Scheduler scheduler schedule]
+  [^Scheduler scheduler schedule opts]
   (.clear scheduler)
   (loop [schedule  schedule
          scheduled {}
@@ -106,23 +117,25 @@
           (log/info "scheduling new trigger for existing job" trigger previously-scheduled)
           (.scheduleJob scheduler built)
           (recur (rest schedule) scheduled proxies))
-        (let [proxy-detail ^JobDetail (proxy job)
+        (let [proxy-detail ^JobDetail (proxy job opts)
               job-key      (.getKey proxy-detail)]
           (log/info "scheduling new job" trigger proxy-detail)
           (.scheduleJob scheduler proxy-detail (.build trigger))
           (recur (rest schedule) (assoc scheduled job-key job) (assoc proxies job proxy-detail))))
-      (.setJobFactory scheduler (job-factory scheduled))))
+      (.setJobFactory scheduler (job-factory scheduled opts))))
   (.start scheduler)
   scheduler)
 
 (defn initialize
   [config]
-  (let [{:keys [schedule update-check?]} config]
+  (let [{:keys [schedule update-check?]} config
+        opts (dissoc config :schedule :update-check?)]
     (log/infof "initializing schedule of [%s] jobs" (count schedule))
     (when-not update-check?
       (System/setProperty "org.terracotta.quartz.skipUpdateCheck" "true")
       (log/infof "with quartz update check disabled"))
-    (activate (StdSchedulerFactory/getDefaultScheduler) schedule)))
+    (log/infof "with cronut opts %s" opts)
+    (activate (StdSchedulerFactory/getDefaultScheduler) schedule config)))
 
 (defn shortcut-interval
   "Trigger immediately, at an interval-ms, run forever (well that's optimistic but you get the idea)"
