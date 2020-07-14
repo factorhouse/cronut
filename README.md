@@ -56,6 +56,8 @@ This flag is set at a global level and affects all scheduled jobs. Raise a PR if
 
 If you disable concurrent ob execution ensure you understand Quartz Misfire options and remember to set `org.quartz.jobStore.misfireThreshold=[some ms value]` in your quartz.properties file. See Quartz documentation for more information. 
 
+See our test-resources/config.edn and test-resources/org/quartz/quartz.properties for examples.
+
 ### The :job
 
 The `:job` in every scheduled item must implement the org.quartz.Job interface
