@@ -22,6 +22,7 @@ How does Cronut differ?
 5. Tagged literals to shortcut common use-cases (#cronut/cron, #cronut/interval)
 6. Easily extensible for further triggers / tagged literals
 7. Zero dependencies other than Clojure, Quartz, and Integrant
+8. Configurable control of concurrent job execution
 
 # Usage
 
