@@ -257,7 +257,7 @@ We can realise that system and run those jobs (See `troy-west.cronut.integration
 (require '[troy-west.cronut.integration-fixture :as itf])
 => nil
 
-(itf/initialize!)
+(itf/init-system)
 =>
 {:dep/one {:a 1},
  :test.job/one #object[troy_west.cronut.integration_fixture$eval2343$fn$reify__2345
