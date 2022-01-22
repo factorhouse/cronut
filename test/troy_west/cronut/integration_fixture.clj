@@ -1,16 +1,16 @@
 (ns troy-west.cronut.integration-fixture
   (:require [clojure.test :refer :all]
             [clojure.java.io :as io]
+            [clojure.core.async :as async]
             [clojure.tools.logging :as log]
             [troy-west.cronut :as cronut]
-            [integrant.core :as ig]
-            [clojure.core.async :as async])
+            [integrant.core :as ig])
   (:import (org.quartz Job)
            (java.util UUID)))
 
 (defrecord TestDefrecordJobImpl [identity description recover? durable? test-dep]
   Job
-  (execute [this job-context]
+  (execute [this _job-context]
     (log/info "Defrecord Impl:" this)))
 
 (defmethod ig/init-key :dep/one
@@ -20,7 +20,7 @@
 (defmethod ig/init-key :test.job/one
   [_ config]
   (reify Job
-    (execute [this job-context]
+    (execute [_this _job-context]
       (log/info "Reified Impl:" config))))
 
 (defmethod ig/init-key :test.job/two
@@ -30,7 +30,7 @@
 (defmethod ig/init-key :test.job/three
   [_ config]
   (reify Job
-    (execute [this job-context]
+    (execute [_this _job-context]
       (let [rand-id (str (UUID/randomUUID))]
         (log/info rand-id "Reified Impl (Job Delay 7s):" config)
         (async/<!! (async/timeout 7000))
