@@ -1,5 +1,7 @@
 # Cronut: A Clojure Companion to Quartz
 
+[![Clojars Project](https://img.shields.io/clojars/v/io.factorhouse/cronut.svg)](https://clojars.org/io.factorhouse/cronut)
+
 Cronut provides a data-first Clojure wrapper for the [Quartz Job Scheduler](http://www.quartz-scheduler.org/)
 
 # Summary
