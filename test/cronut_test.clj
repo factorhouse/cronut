@@ -1,5 +1,5 @@
 (ns cronut-test
-  (:require [clojure.test :refer :all]
+  (:require [clojure.test :refer [deftest is]]
             [cronut :as cronut])
   (:import (sun.util.calendar ZoneInfo)))
 
