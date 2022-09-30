@@ -1,4 +1,4 @@
-(defproject com.factorhouse/cronut "0.2.7"
+(defproject io.factorhouse/cronut "0.2.7"
 
   :description "Clojure Scheduled Execution via Quartzite and Integrant"
 
