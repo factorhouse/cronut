@@ -1,4 +1,4 @@
-# Cronut: Scheduled Execution via Quartz and Integrant
+# Cronut: A Clojure Companion to Quartz
 
 Cronut provides a data-first Clojure wrapper for the [Quartz Job Scheduler](http://www.quartz-scheduler.org/)
 
