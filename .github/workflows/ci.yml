@@ -1,0 +1,35 @@
+name: Cronut Test 
+
+on: [push]
+
+jobs:
+
+  clojure:
+    runs-on: ubuntu-latest 
+
+    strategy:
+      fail-fast: false
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Java11
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'temurin'
+          java-version: '11'
+
+      - name: Install Clojure
+        uses: DeLaGuardo/setup-clojure@4.0
+        with:
+          lein: 'latest' 
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Deps
+        working-directory: ./
+        run: lein deps
+        
+      - name: Smoke
+        working-directory: ./
+        run: lein smoke
