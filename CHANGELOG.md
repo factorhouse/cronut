@@ -1,6 +1,14 @@
 # Change Log
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
+## [0.2.7] - 2020-09-30
+
+Changes in preperation of more active development:
+
+- Shift to factorhouse organisation on github and clojars
+- Contract troy-west.cronut ns to simply cronut
+- Change to MIT license
+
 ## [0.2.6] - 2020-07-14
 
 - Suppport global :disallowConcurrentExecution option (you will want to understand misfires if you use this).
