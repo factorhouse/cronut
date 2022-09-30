@@ -1,3 +1,3 @@
-{cronut/trigger  troy-west.cronut/trigger-builder
- cronut/cron     troy-west.cronut/shortcut-cron
- cronut/interval troy-west.cronut/shortcut-interval}
+{cronut/trigger  cronut/trigger-builder
+ cronut/cron     cronut/shortcut-cron
+ cronut/interval cronut/shortcut-interval}

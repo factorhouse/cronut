@@ -148,7 +148,7 @@ The #cronut/trigger tagged literal supports the full set of Quartz configuration
                           :priority    4}
 ````
 
-This tagged literal calls a Clojure multi-method that is open for extension, see: [troy-west.cronut/trigger-builder](https://github.com/troy-west/cronut/blob/01ada3182ff18ec4a78095cdba80d43f660d8c85/src/troy_west/cronut.clj#L58)
+This tagged literal calls a Clojure multi-method that is open for extension.
 
 You should implement the remaining two Quartz Triggers (CalendarInterval and DailyTimeInterval), create the Tagged
 Literal for each, and raise a PR. Go on it will be fun, open issues exist for both triggers.
@@ -157,13 +157,13 @@ Literal for each, and raise a PR. Go on it will be fun, open issues exist for bo
 
 When initializing an Integrant system you will need to provide the Cronut data readers.
 
-See: `troy-west.cronut/data-readers` for convenience.
+See: `cronut/data-readers` for convenience.
 
 ````clojure
 (def data-readers
-  {'cronut/trigger  troy-west.cronut/trigger-builder
-   'cronut/cron     troy-west.cronut/shortcut-cron
-   'cronut/interval troy-west.cronut/shortcut-interval})
+  {'cronut/trigger  cronut/trigger-builder
+   'cronut/cron     cronut/shortcut-cron
+   'cronut/interval cronut/shortcut-interval})
 ````
 
 e.g.
@@ -249,27 +249,27 @@ And the associated Integrant lifecycle impl, note:
   (map->TestDefrecordJobImpl config))
 ````
 
-We can realise that system and run those jobs (See `troy-west.cronut.integration-fixture` for full example):
+We can realise that system and run those jobs (See `cronut.integration-fixture` for full example):
 
 ````clojure
-(require '[troy-west.cronut.integration-fixture :as itf])
+(require '[cronut.integration-fixture :as itf])
 => nil
 
 (itf/init-system)
 =>
 {:dep/one {:a 1},
- :test.job/one #object[troy_west.cronut.integration_fixture$eval2343$fn$reify__2345
+ :test.job/one #object[ronut.integration_fixture$eval2343$fn$reify__2345
                        0x2e906b8a
-                       "troy_west.cronut.integration_fixture$eval2343$fn$reify__2345@2e906b8a"],
- :test.job/two #troy_west.cronut.integration_fixture.TestDefrecordJobImpl{:identity ["job-two" "test"],
+                       "cronut.integration_fixture$eval2343$fn$reify__2345@2e906b8a"],
+ :test.job/two #cronut.integration_fixture.TestDefrecordJobImpl{:identity ["job-two" "test"],
                                                                           :description "test job",
                                                                           :recover? true,
                                                                           :durable? false,
                                                                           :test-dep nil,
                                                                           :dep-one {:a 1},
-                                                                          :dep-two #object[troy_west.cronut.integration_fixture$eval2343$fn$reify__2345
+                                                                          :dep-two #object[cronut.integration_fixture$eval2343$fn$reify__2345
                                                                                            0x2e906b8a
-                                                                                           "troy_west.cronut.integration_fixture$eval2343$fn$reify__2345@2e906b8a"]},
+                                                                                           "cronut.integration_fixture$eval2343$fn$reify__2345@2e906b8a"]},
  :cronut/scheduler #object[org.quartz.impl.StdScheduler 0x7565dd8e "org.quartz.impl.StdScheduler@7565dd8e"]}
  
  (itf/shutdown!)
@@ -278,6 +278,6 @@ We can realise that system and run those jobs (See `troy-west.cronut.integration
 
 ## License
 
-Copyright © 2018 [Troy-West, Pty Ltd.](http://www.troywest.com)
+Copyright © 2022 [Factor House](http://www.factorhouse.io)
 
-Distributed under the Eclipse Public License either version 2.0 or (at your option) any later version.
+Distributed under the MIT License

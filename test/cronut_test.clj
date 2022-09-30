@@ -1,6 +1,6 @@
-(ns troy-west.cronut-test
+(ns cronut-test
   (:require [clojure.test :refer :all]
-            [troy-west.cronut :as cronut])
+            [cronut :as cronut])
   (:import (sun.util.calendar ZoneInfo)))
 
 (deftest base-trigger

@@ -1,9 +1,9 @@
-(ns troy-west.cronut.integration-fixture
+(ns cronut.integration-fixture
   (:require [clojure.test :refer :all]
             [clojure.java.io :as io]
             [clojure.core.async :as async]
             [clojure.tools.logging :as log]
-            [troy-west.cronut :as cronut]
+            [cronut :as cronut]
             [integrant.core :as ig])
   (:import (org.quartz Job)
            (java.util UUID)))

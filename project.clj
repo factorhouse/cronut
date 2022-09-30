@@ -2,7 +2,7 @@
 
   :description "Clojure Scheduled Execution via Quartzite and Integrant"
 
-  :url "https://github.com/troy-west/cronut"
+  :url "https://github.com/factorhouse/cronut"
 
   :license {:name "Eclipse Public License"
             :url  "http://www.eclipse.org/legal/epl-v20.html"}
