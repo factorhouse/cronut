@@ -1,7 +1,5 @@
 # Cronut: Scheduled Execution via Quartz and Integrant
 
-[![Clojars Project](https://img.shields.io/clojars/v/com.troy-west/cronut.svg)](https://clojars.org/com.troy-west/cronut) [![CircleCI](https://circleci.com/gh/troy-west/cronut.svg?style=svg)](https://circleci.com/gh/troy-west/cronut)
-
 Cronut provides a data-first Clojure wrapper for the [Quartz Job Scheduler](http://www.quartz-scheduler.org/)
 
 # Summary
