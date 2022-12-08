@@ -53,7 +53,7 @@ Cronut 0.2.6+ supports the option to disable concurrent execution of jobs (see c
 
 This flag is set at a global level and affects all scheduled jobs. Raise a PR if you want to intermingle concurrency.
 
-If you disable concurrent ob execution ensure you understand Quartz Misfire options and remember to set `org.quartz.jobStore.misfireThreshold=[some ms value]` in your quartz.properties file. See Quartz documentation for more information. 
+If you disable concurrent job execution ensure you understand Quartz Misfire options and remember to set `org.quartz.jobStore.misfireThreshold=[some ms value]` in your quartz.properties file. See Quartz documentation for more information. 
 
 See our test-resources/config.edn and test-resources/org/quartz/quartz.properties for examples.
 
