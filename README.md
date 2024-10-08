@@ -280,6 +280,6 @@ We can realise that system and run those jobs (See `cronut.integration-fixture` 
 
 ## License
 
-Copyright © 2022 [Factor House](http://www.factorhouse.io)
+Distributed under the Apache 2.0 License.
 
-Distributed under the MIT License
+Copyright (c) [Factor House](https://factorhouse.io)
