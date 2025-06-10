@@ -17,7 +17,9 @@
   :profiles {:dev {:resource-paths ["test-resources"]
                    :dependencies   [[ch.qos.logback/logback-classic "1.2.11"]
                                     [org.clojure/core.async "1.5.648"]
-                                    [clj-kondo "2022.09.08"]]}}
+                                    [clj-kondo "2022.09.08"]]}
+             :uberjar {:aot [cronut] 
+                       :dependencies [[org.slf4j/slf4j-api "2.0.17"]]}}
 
   :deploy-repositories [["releases" {:url "https://clojars.org/repo/" :creds :gpg}]]
 
