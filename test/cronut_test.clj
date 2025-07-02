@@ -91,6 +91,7 @@
   (is (thrown? IllegalArgumentException
                (cronut/cron-schedule {})))
 
+  ;; ZoneInfo usage causes an error on JDK17+, tests only not used anywhere else
   (is (= {:cronExpression     "*/6 * * * * ?"
           :timeZone           (ZoneInfo/getDefault)
           :misfireInstruction 0}
