@@ -4,8 +4,8 @@
 
   :url "https://github.com/factorhouse/cronut"
 
-  :license {:name "Eclipse Public License"
-            :url  "http://www.eclipse.org/legal/epl-v20.html"}
+  :license {:name "Apache 2.0 License"
+            :url  "https://github.com/factorhosue/slipway/blob/main/LICENSE"}
 
   :plugins [[dev.weavejester/lein-cljfmt "0.13.1"]]
 
@@ -14,21 +14,10 @@
                  [org.quartz-scheduler/quartz "2.4.0" :exclusions [org.slf4j/slf4j-api]]
                  [integrant "0.13.1" :scope "provided"]]
 
-  :profiles {:dev {:resource-paths ["test-resources"]
+  :profiles {:dev {:resource-paths ["dev-resources"]
                    :dependencies   [[ch.qos.logback/logback-classic "1.3.15"]
                                     [org.clojure/core.async "1.8.741"]
                                     [clj-kondo "2025.06.05"]]}}
-
-  :deploy-repositories [["releases" {:url "https://clojars.org/repo/" :creds :gpg}]]
-
-  :release-tasks [["vcs" "assert-committed"]
-                  ["change" "version" "leiningen.release/bump-version" "release"]
-                  ["vcs" "commit"]
-                  ["vcs" "tag"]
-                  ["deploy"]
-                  ["change" "version" "leiningen.release/bump-version"]
-                  ["vcs" "commit"]
-                  ["vcs" "push"]]
 
   :aliases {"smoke" ["do"
                      ["clean"]
