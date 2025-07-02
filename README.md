@@ -2,7 +2,7 @@
 
 [![Clojars Project](https://img.shields.io/clojars/v/io.factorhouse/cronut.svg)](https://clojars.org/io.factorhouse/cronut)
 
-Cronut provides a data-first Clojure wrapper for the [Quartz Job Scheduler](http://www.quartz-scheduler.org/)
+Cronut provides a data-first Clojure wrapper for the [Quartz Job Scheduler](https://github.com/quartz-scheduler)
 
 # Summary
 
