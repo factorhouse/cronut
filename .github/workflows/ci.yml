@@ -1,35 +1,66 @@
-name: Cronut Test 
-
-on: [push]
+env: # runner has 7g of ram
+  JVM_OPTS: -Xmx6G
 
 jobs:
 
-  clojure:
-    runs-on: ubuntu-latest 
+  build:
+
+    runs-on: ubuntu-latest
 
     strategy:
       fail-fast: false
+      matrix:
+        project: [cronut-javax]
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Java11
-        uses: actions/setup-java@v2
+      - name: Setup Java8
+        uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '11'
+          java-version: '8'
 
-      - name: Install Clojure tools
+      - name: Install clojure tools
         uses: DeLaGuardo/setup-clojure@13.4
         with:
           lein: 'latest'
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Deps
-        working-directory: ./
-        run: lein deps
-        
-      - name: Smoke
-        working-directory: ./
-        run: lein smoke
+      - name: Check
+        working-directory: ./${{ matrix.project }}
+        run: lein with-profile +smoke deps
+
+      - name: Fmt
+        working-directory: ./${{ matrix.project }}
+        run: lein fmt
+
+      - name: Kondo
+        working-directory: ./${{ matrix.project }}
+        run: lein kondo
+
+      - name: Test
+        working-directory: ./${{ matrix.project }}
+        run: lein test
+
+      - name: NVD
+        uses: dependency-check/Dependency-Check_Action@main
+        env:
+          # actions/setup-java changes JAVA_HOME so it needs to be reset to match the depcheck image
+          JAVA_HOME: /opt/jdk
+        with:
+          project: ${{ matrix.project }}
+          path: ${{ matrix.project }}/target
+          format: 'HTML'
+          out: ${{ matrix.project }}/reports
+          args: >
+            --suppression ${{ matrix.project }}/dependency-check-suppressions.xml
+
+      - name: Persist NVD
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nvd-${{ matrix.project }}-${{ github.sha }}
+          path: ${{ matrix.project }}/reports/*
+          retention-days: 1

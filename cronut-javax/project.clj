@@ -14,17 +14,15 @@
                  [org.quartz-scheduler/quartz "2.4.0" :exclusions [org.slf4j/slf4j-api]]
                  [integrant "0.13.1" :scope "provided"]]
 
-  :profiles {:dev {:resource-paths ["dev-resources"]
-                   :dependencies   [[ch.qos.logback/logback-classic "1.3.15"]
-                                    [org.clojure/core.async "1.8.741"]
-                                    [clj-kondo "2025.06.05"]]}}
+  :profiles {:dev   {:resource-paths ["dev-resources"]
+                     :dependencies   [[ch.qos.logback/logback-classic "1.3.15"]
+                                      [org.clojure/core.async "1.8.741"]
+                                      [clj-kondo "2025.06.05"]]}
+             :smoke {:pedantic? :abort}}
 
-  :aliases {"smoke" ["do"
-                     ["clean"]
-                     ["check"]
-                     ["test"]
-                     ["cljfmt" "check"]
-                     ["run" "-m" "clj-kondo.main" "--lint" "src:test" "--parallel"]]}
+  :aliases {"check" ["with-profile" "+smoke" "check"]
+            "kondo" ["with-profile" "+smoke" "run" "-m" "clj-kondo.main" "--lint" "src:src:test:test" "--parallel"]
+            "fmt"   ["with-profile" "+smoke" "cljfmt" "check"]}
 
   :source-paths ["src"]
   :test-paths ["test"]
