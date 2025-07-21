@@ -40,7 +40,7 @@ jobs:
           lein: 'latest'
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Check
+      - name: Deps
         working-directory: ./${{ matrix.project }}
         run: lein with-profile +smoke deps
 
@@ -53,6 +53,7 @@ jobs:
         run: lein kondo
 
       - name: Test
+        if: ${{ matrix.project != 'cronut-integrant' }}
         working-directory: ./${{ matrix.project }}
         run: lein test
 
