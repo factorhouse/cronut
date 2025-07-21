@@ -1,4 +1,4 @@
-(ns cronut.integration-fixture
+(ns cronut.integration-test
   (:require [clojure.core.async :as async]
             [clojure.java.io :as io]
             [clojure.tools.logging :as log]

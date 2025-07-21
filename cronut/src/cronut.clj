@@ -111,7 +111,7 @@
          scheduled {}
          proxies   {}]
     (if-let [{:keys [job ^TriggerBuilder trigger]} (first schedule)]
-      (if-let [previously-scheduled ^JobDetail (get proxies job)]
+      (if-let [^JobDetail previously-scheduled (get proxies job)]
         (let [built (.build (.forJob trigger previously-scheduled))]
           (log/info "scheduling new trigger for existing job" built previously-scheduled)
           (.scheduleJob scheduler built)

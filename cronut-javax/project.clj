@@ -1,6 +1,6 @@
 (defproject io.factorhouse/cronut-javax "1.0.0"
 
-  :description "Clojure Scheduled Execution via Quartzite and Integrant"
+  :description "A Clojure companion to Quartz"
 
   :url "https://github.com/factorhouse/cronut"
 
