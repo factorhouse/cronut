@@ -90,7 +90,7 @@
 
   (is (thrown? IllegalArgumentException
                (cronut/cron-schedule {})))
-  
+
   (is (= {:cronExpression     "*/6 * * * * ?"
           :timeZone           (TimeZone/getDefault)
           :misfireInstruction 0}
