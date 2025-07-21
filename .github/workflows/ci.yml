@@ -14,17 +14,25 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        project: [cronut-javax]
+        project: [cronut, cronut-javax]
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup Java8
+        if: ${{ matrix.project == 'cronut-javax' }}
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '8'
+
+      - name: Setup Java11
+        if: ${{ matrix.project != 'cronut-javax' }}
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '11'
 
       - name: Install clojure tools
         uses: DeLaGuardo/setup-clojure@13.4
