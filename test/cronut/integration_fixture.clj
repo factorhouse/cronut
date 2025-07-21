@@ -1,11 +1,11 @@
 (ns cronut.integration-fixture
-  (:require [clojure.java.io :as io]
-            [clojure.core.async :as async]
+  (:require [clojure.core.async :as async]
+            [clojure.java.io :as io]
             [clojure.tools.logging :as log]
-            [cronut :as cronut]
+            [cronut.integrant :as cig]
             [integrant.core :as ig])
-  (:import (org.quartz Job)
-           (java.util UUID)))
+  (:import (java.util UUID)
+           (org.quartz Job)))
 
 (defrecord TestDefrecordJobImpl [identity description recover? durable? test-dep]
   Job
@@ -42,4 +42,4 @@
   ([config]
    (init-system config nil))
   ([config readers]
-   (ig/init (ig/read-string {:readers (merge cronut/data-readers readers)} config))))
+   (ig/init (ig/read-string {:readers (merge cig/data-readers readers)} config))))
