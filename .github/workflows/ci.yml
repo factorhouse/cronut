@@ -1,3 +1,7 @@
+name: Cronut Test
+
+on: [push]
+
 env: # runner has 7g of ram
   JVM_OPTS: -Xmx6G
 
