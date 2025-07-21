@@ -1,4 +1,4 @@
-(defproject io.factorhouse/cronut "0.2.7"
+(defproject io.factorhouse/cronut "1.0.0"
 
   :description "Clojure Scheduled Execution via Quartzite and Integrant"
 
@@ -28,4 +28,4 @@
   :source-paths ["src"]
   :test-paths ["test"]
 
-  :pedantic? :abort)
+  :pedantic? :warn)
