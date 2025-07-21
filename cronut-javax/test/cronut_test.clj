@@ -1,7 +1,7 @@
 (ns cronut-test
   (:require [clojure.test :refer [deftest is]]
             [cronut :as cronut])
-  (:import (sun.util.calendar ZoneInfo)))
+  (:import (java.util TimeZone)))
 
 (deftest base-trigger
 
@@ -90,10 +90,9 @@
 
   (is (thrown? IllegalArgumentException
                (cronut/cron-schedule {})))
-
-  ;; ZoneInfo usage causes an error on JDK17+, tests only not used anywhere else
+  
   (is (= {:cronExpression     "*/6 * * * * ?"
-          :timeZone           (ZoneInfo/getDefault)
+          :timeZone           (TimeZone/getDefault)
           :misfireInstruction 0}
          (-> (cronut/cron-schedule {:cron "*/6 * * * * ?"})
              (.build)
@@ -101,7 +100,7 @@
              (select-keys [:cronExpression :timeZone :misfireInstruction]))))
 
   (is (= {:cronExpression     "*/6 * * * * ?"
-          :timeZone           (ZoneInfo/getTimeZone "UTC")
+          :timeZone           (TimeZone/getTimeZone "UTC")
           :misfireInstruction 0}
          (-> (cronut/cron-schedule {:cron      "*/6 * * * * ?"
                                     :time-zone "UTC"})
@@ -110,7 +109,7 @@
              (select-keys [:cronExpression :timeZone :misfireInstruction]))))
 
   (is (= {:cronExpression     "*/6 * * * * ?"
-          :timeZone           (ZoneInfo/getTimeZone "UTC")
+          :timeZone           (TimeZone/getTimeZone "UTC")
           :misfireInstruction 1}
          (-> (cronut/cron-schedule {:cron      "*/6 * * * * ?"
                                     :time-zone "UTC"
