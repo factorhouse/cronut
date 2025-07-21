@@ -55,7 +55,8 @@
                                                    {:job     #ig/ref :test.job/two
                                                     :trigger #cronut/cron "*/8 * * * * ?"}
 
-                                                   ;; Chron 5s window, 7s execution delay, 50% misfire and do nothing with {:disallowConcurrentExecution? true}
+                                                   ;; Note: This job misfires because it takes 7 seconds to run, but runs every 5 seconds, and isn't allowed to run concurrently with {:disallowConcurrentExecution? true}
+                                                   ;;       So every second job fails to run, and is just ignored with the :do-nothing :misfire rule
                                                    {:job     #ig/ref :test.job/three
                                                     :trigger #cronut/trigger {:type    :cron
                                                                               :cron    "*/5 * * * * ?"
