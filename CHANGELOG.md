@@ -1,6 +1,17 @@
 # Change Log
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
+## [1.0.0] - 2025-07-23
+
+Significant rewrite of internals, splitting into three projects.
+
+- cronut project supports Quartz 2.5.0 and Jakarta
+- cronut-javax project supports Quartz 2.4.0 and Javax
+- cronut-integrant contains integrant bindings that were previously in core project
+- introduce ability to mutate scheduler, pausing, resuming, stopping, removing jobs and triggers
+- add ability to specify disallow-concurrent-execution at a job level
+- BREAKING: configuration for global concurrency controls renamed to :concurrent-execution-disallowed?
+
 ## [0.2.7] - 2020-09-30
 
 Changes in preperation of more active development:
