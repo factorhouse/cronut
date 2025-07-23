@@ -1,155 +1,110 @@
 (ns cronut
   (:refer-clojure :exclude [proxy])
-  (:require [clojure.tools.logging :as log])
-  (:import (java.util TimeZone)
-           (org.quartz CronScheduleBuilder DisallowConcurrentExecution Job JobBuilder JobDetail JobExecutionException Scheduler SimpleScheduleBuilder TriggerBuilder)
-           (org.quartz.impl StdSchedulerFactory)
-           (org.quartz.spi JobFactory TriggerFiredBundle)))
+  (:require [clojure.tools.logging :as log]
+            [cronut.job :as job])
+  (:import (org.quartz JobDetail JobKey Scheduler Trigger TriggerBuilder TriggerKey)
+           (org.quartz.impl StdSchedulerFactory)))
 
-(defn base-trigger-builder
-  "Provide a base trigger-builder from configuration"
-  [{:keys [identity description start end priority]}]
-  (cond-> (TriggerBuilder/newTrigger)
-    (seq identity) (.withIdentity (first identity) (second identity))
-    description (.withDescription description)
-    start (.startAt start)
-    (nil? start) (.startNow)
-    end (.endAt end)
-    priority (.withPriority (int priority))))
+(defn concurrent-execution-disallowed?
+  [^Scheduler scheduler]
+  (= "true" (get (.getContext scheduler) "concurrentExecutionDisallowed?")))
 
-(defn simple-schedule
-  "Provide a simple schedule from configuration"
-  [{:keys [interval time-unit repeat misfire]}]
-  (let [schedule (SimpleScheduleBuilder/simpleSchedule)]
-    (case time-unit
-      :millis (.withIntervalInMilliseconds schedule interval)
-      :seconds (.withIntervalInSeconds schedule interval)
-      :minutes (.withIntervalInMinutes schedule interval)
-      :hours (.withIntervalInHours schedule interval)
-      nil (when interval (.withIntervalInMilliseconds schedule interval)))
-    (case misfire
-      :fire-now (.withMisfireHandlingInstructionFireNow schedule)
-      :ignore (.withMisfireHandlingInstructionIgnoreMisfires schedule)
-      :next-existing (.withMisfireHandlingInstructionNextWithExistingCount schedule)
-      :next-remaining (.withMisfireHandlingInstructionNextWithRemainingCount schedule)
-      :now-existing (.withMisfireHandlingInstructionNowWithExistingCount schedule)
-      :now-remaining (.withMisfireHandlingInstructionNowWithRemainingCount schedule)
-      nil nil)
-    (cond
-      (number? repeat) (.withRepeatCount schedule repeat)
-      (= :forever repeat) (.repeatForever schedule))
-    schedule))
+(defn get-detail
+  [^Scheduler scheduler ^JobKey key]
+  (.getJobDetail scheduler key))
 
-(defn cron-schedule
-  "Provide a cron schedule from configuration"
-  [{:keys [cron time-zone misfire]}]
-  (let [schedule (CronScheduleBuilder/cronSchedule ^String cron)]
-    (case misfire
-      :ignore (.withMisfireHandlingInstructionIgnoreMisfires schedule)
-      :do-nothing (.withMisfireHandlingInstructionDoNothing schedule)
-      :fire-and-proceed (.withMisfireHandlingInstructionFireAndProceed schedule)
-      nil nil)
-    (when time-zone
-      (.inTimeZone schedule (TimeZone/getTimeZone ^String time-zone)))
-    schedule))
+(defn ^Trigger schedule-job
+  [^Scheduler scheduler ^TriggerBuilder trigger job]
+  (let [detail ^JobDetail (job/detail job (concurrent-execution-disallowed? scheduler))]
+    (if-let [^JobDetail previously-scheduled (get-detail scheduler (.getKey detail))]
+      (let [built (.build (.forJob trigger previously-scheduled))]
+        (log/info "scheduling new trigger for existing job" built previously-scheduled)
+        (.scheduleJob scheduler built)
+        built)
+      (let [built (.build trigger)]
+        (log/info "scheduling new job" built detail)
+        (.scheduleJob scheduler detail built)
+        built))))
 
-(defmulti trigger-builder :type)
+(defn schedule-jobs
+  [^Scheduler scheduler jobs]
+  (log/infof "scheduling [%s] jobs" (count jobs))
+  (loop [schedule jobs
+         triggers []]
+    (if-let [{:keys [^TriggerBuilder trigger job]} (first schedule)]
+      (recur (rest schedule) (conj triggers (schedule-job scheduler trigger job)))
+      triggers)))
 
-(defmethod trigger-builder :simple
-  [config]
-  (.withSchedule ^TriggerBuilder (base-trigger-builder config)
-                 (simple-schedule config)))
+(defn scheduler
+  [{:keys [update-check? concurrent-execution-disallowed?]}]
+  (log/infof "initializing scheduler")
+  (when-not update-check?
+    (System/setProperty "org.terracotta.quartz.skipUpdateCheck" "true")
+    (log/infof "with quartz update check disabled"))
+  (let [scheduler (StdSchedulerFactory/getDefaultScheduler)]
+    (if concurrent-execution-disallowed?
+      (do
+        (log/infof "with global concurrent execution disallowed")
+        (.put (.getContext scheduler) "concurrentExecutionDisallowed?" "true"))
+      (.put (.getContext scheduler) "concurrentExecutionDisallowed?" "false"))
+    (.setJobFactory scheduler (job/factory))
+    scheduler))
 
-(defmethod trigger-builder :cron
-  [config]
-  (.withSchedule ^TriggerBuilder (base-trigger-builder config)
-                 (cron-schedule config)))
+(defn pause-job
+  ([^Scheduler scheduler group name]
+   (.pauseJob scheduler (JobKey. name group)))
+  ([^Scheduler scheduler ^Trigger trigger]
+   (.pauseJob scheduler (.getJobKey trigger))))
 
-(defrecord ^{DisallowConcurrentExecution true} SerialProxyJob [proxied-job]
-  Job
-  (execute [_ job-context]
-    (try
-      (.execute ^Job proxied-job job-context)
-      (catch JobExecutionException ex
-        (throw ex))
-      (catch Exception ex
-        (throw (JobExecutionException. ^Exception ex))))))
+(defn resume-job
+  ([^Scheduler scheduler group name]
+   (.resumeJob scheduler (JobKey. name group)))
+  ([^Scheduler scheduler ^Trigger trigger]
+   (.resumeJob scheduler (.getJobKey trigger))))
 
-(defrecord ProxyJob [proxied-job]
-  Job
-  (execute [_ job-context]
-    (try
-      (.execute ^Job proxied-job job-context)
-      (catch JobExecutionException ex
-        (throw ex))
-      (catch Exception ex
-        (throw (JobExecutionException. ^Exception ex))))))
+(defn pause-trigger
+  ([^Scheduler scheduler group name]
+   (.pauseTrigger scheduler (TriggerKey. name group)))
+  ([^Scheduler scheduler ^Trigger trigger]
+   (.pauseTrigger scheduler (.getKey trigger))))
 
-(defn job-factory
-  [scheduled opts]
-  (reify JobFactory
-    (newJob [_ bundle _]
-      (let [job-detail (.getJobDetail ^TriggerFiredBundle bundle)
-            job-key    (.getKey job-detail)]
-        (if (:disallowConcurrentExecution? opts)
-          (->SerialProxyJob (get scheduled job-key))
-          (->ProxyJob (get scheduled job-key)))))))
+(defn resume-trigger
+  ([^Scheduler scheduler group name]
+   (.resumeTrigger scheduler (TriggerKey. name group)))
+  ([^Scheduler scheduler ^Trigger trigger]
+   (.resumeTrigger scheduler (.getKey trigger))))
 
-(defn proxy
-  [job opts]
-  (let [{:keys [identity description recover? durable?]} job]
-    (.build (cond-> (.ofType (JobBuilder/newJob) (if (:disallowConcurrentExecution? opts) SerialProxyJob ProxyJob))
-              (seq identity) (.withIdentity (first identity) (second identity))
-              description (.withDescription description)
-              (boolean? recover?) (.requestRecovery recover?)
-              (boolean? durable?) (.storeDurably durable?)))))
+(defn delete-job
+  ([^Scheduler scheduler group name]
+   (.deleteJob scheduler (JobKey. name group)))
+  ([^Scheduler scheduler ^Trigger trigger]
+   (.deleteJob scheduler (.getJobKey trigger))))
 
-(defn activate
-  [^Scheduler scheduler schedule global-opts]
+(defn unschedule-job
+  ([^Scheduler scheduler group name]
+   (.unscheduleJob scheduler (TriggerKey. name group)))
+  ([^Scheduler scheduler ^Trigger trigger]
+   (.unscheduleJob scheduler (.getKey trigger))))
+
+(defn pause-all
+  [^Scheduler scheduler]
+  (.pauseAll scheduler))
+
+(defn resume-all
+  [^Scheduler scheduler]
+  (.resumeAll scheduler))
+
+(defn clear
+  [^Scheduler scheduler]
   (.clear scheduler)
-  (loop [schedule  schedule
-         scheduled {}
-         proxies   {}]
-    (if-let [{:keys [job ^TriggerBuilder trigger]} (first schedule)]
-      (if-let [^JobDetail previously-scheduled (get proxies job)]
-        (let [built (.build (.forJob trigger previously-scheduled))]
-          (log/info "scheduling new trigger for existing job" built previously-scheduled)
-          (.scheduleJob scheduler built)
-          (recur (rest schedule) scheduled proxies))
-        (let [proxy-detail ^JobDetail (proxy job global-opts)
-              job-key      (.getKey proxy-detail)
-              built        (.build trigger)]
-          (log/info "scheduling new job" built proxy-detail)
-          (.scheduleJob scheduler proxy-detail built)
-          (recur (rest schedule) (assoc scheduled job-key job) (assoc proxies job proxy-detail))))
-      (.setJobFactory scheduler (job-factory scheduled global-opts))))
+  scheduler)
+
+(defn start
+  [^Scheduler scheduler]
   (.start scheduler)
   scheduler)
 
-(defn initialize
-  [config]
-  (let [{:keys [schedule update-check?]} config
-        opts (dissoc config :schedule :update-check?)]
-    (log/infof "initializing schedule of [%s] jobs" (count schedule))
-    (when-not update-check?
-      (System/setProperty "org.terracotta.quartz.skipUpdateCheck" "true")
-      (log/infof "with quartz update check disabled"))
-    (log/infof "with cronut opts %s" opts)
-    (activate (StdSchedulerFactory/getDefaultScheduler) schedule config)))
-
-(defn shortcut-interval
-  "Trigger immediately, at an interval-ms, run forever (well that's optimistic but you get the idea)"
-  [interval-ms]
-  (trigger-builder {:type      :simple
-                    :interval  interval-ms
-                    :time-unit :millis
-                    :repeat    :forever}))
-
-(defn shortcut-cron
-  [cron]
-  (trigger-builder {:type :cron
-                    :cron cron}))
-
 (defn shutdown
   [scheduler]
-  (.shutdown ^Scheduler scheduler))
+  (.shutdown ^Scheduler scheduler)
+  scheduler)

@@ -14,7 +14,8 @@
                  [org.quartz-scheduler/quartz "2.5.0" :exclusions [org.slf4j/slf4j-api]]]
 
   :profiles {:dev   {:resource-paths ["dev-resources"]
-                     :dependencies   [[ch.qos.logback/logback-classic "1.5.18"]
+                     :dependencies   [[integrant "0.13.1"]
+                                      [ch.qos.logback/logback-classic "1.5.18"]
                                       [org.slf4j/slf4j-api "2.0.17"]
                                       [org.clojure/core.async "1.8.741"]
                                       [clj-kondo "2025.06.05"]]}
