@@ -2,7 +2,7 @@
 
 [![Clojars Project](https://img.shields.io/clojars/v/io.factorhouse/cronut.svg)](https://clojars.org/io.factorhouse/cronut)
 
-Cronut provides a data-first Clojure wrapper for the [Quartz Job Scheduler](http://www.quartz-scheduler.org/)
+Cronut provides a data-first Clojure wrapper for the [Quartz Job Scheduler](https://github.com/quartz-scheduler)
 
 # Summary
 
@@ -44,7 +44,7 @@ e.g.
                                {:job     #ig/ref :test.job/two
                                 :trigger #cronut/cron "*/8 * * * * ?"
                                 :misfire :do-nothing}]
-                   :disallowConcurrentExecution? true}}
+                   :disallowConcurrentExecution? true}
 ````
 
 ### Controlling Concurrent Execution
@@ -273,8 +273,9 @@ We can realise that system and run those jobs (See `cronut.integration-fixture` 
                                                                                            0x2e906b8a
                                                                                            "cronut.integration_fixture$eval2343$fn$reify__2345@2e906b8a"]},
  :cronut/scheduler #object[org.quartz.impl.StdScheduler 0x7565dd8e "org.quartz.impl.StdScheduler@7565dd8e"]}
- 
- (itf/shutdown!)
+
+(require '[integrant.core :as ig])
+(ig/halt! *1)
 => nil 
 ````
 
