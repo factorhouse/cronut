@@ -22,9 +22,10 @@
              :javax   {:dependencies [[io.factorhouse/cronut "0.2.7"]]} ;; TODO fix up after release
              :smoke   {:pedantic? :abort}}
 
-  :aliases {"check" ["with-profile" "+smoke,+jakarta" "check"]
-            "kondo" ["with-profile" "+smoke,+jakarta" "run" "-m" "clj-kondo.main" "--lint" "src:src:test:test" "--parallel"]
-            "fmt"   ["with-profile" "+smoke,+jakarta" "cljfmt" "check"]}
+  :aliases {"check"  ["with-profile" "+smoke,+jakarta" "check"]
+            "kondo"  ["with-profile" "+smoke,+jakarta" "run" "-m" "clj-kondo.main" "--lint" "src:src:test:test" "--parallel"]
+            "fmt"    ["with-profile" "+smoke,+jakarta" "cljfmt" "check"]
+            "fmtfix" ["with-profile" "+smoke" "cljfmt" "fix"]}
 
   :source-paths ["src"]
   :test-paths ["test"]

@@ -20,9 +20,10 @@
                                       [clj-kondo "2025.06.05"]]}
              :smoke {:pedantic? :abort}}
 
-  :aliases {"check" ["with-profile" "+smoke" "check"]
-            "kondo" ["with-profile" "+smoke" "run" "-m" "clj-kondo.main" "--lint" "src:src:test:test" "--parallel"]
-            "fmt"   ["with-profile" "+smoke" "cljfmt" "check"]}
+  :aliases {"check"  ["with-profile" "+smoke" "check"]
+            "kondo"  ["with-profile" "+smoke" "run" "-m" "clj-kondo.main" "--lint" "src:src:test:test" "--parallel"]
+            "fmt"    ["with-profile" "+smoke" "cljfmt" "check"]
+            "fmtfix" ["with-profile" "+smoke" "cljfmt" "fix"]}
 
   :source-paths ["src"]
   :test-paths ["test"]
