@@ -1,120 +1,34 @@
 (ns cronut-test
   (:require [clojure.test :refer [deftest is]]
-            [cronut :as cronut])
-  (:import (java.util TimeZone)))
+            [clojure.tools.logging :as log]
+            [cronut :as cronut]
+            [cronut.trigger :as trigger])
+  (:import (org.quartz Job Trigger)))
 
-(deftest base-trigger
+(defrecord TestDefrecordJobImpl [identity description recover? durable? test-dep disallowConcurrentExecution?]
+  Job
+  (execute [this _job-context]
+    (log/info "Defrecord Impl:" this)))
 
-  (is (= {:group       "DEFAULT"
-          :description nil
-          :priority    5}
-         (-> (cronut/base-trigger-builder {})
-             (.build)
-             (bean)
-             (select-keys [:group :description :priority]))))
+(deftest concurrent-execution-disallowed
 
-  (is (= {:group       "test"
-          :name        "trigger-two"
-          :description "test trigger"
-          :priority    101
-          :startTime   #inst "2019-01-01T00:00:00.000-00:00"
-          :endTime     #inst "2019-02-01T00:00:00.000-00:00"}
-         (-> (cronut/base-trigger-builder
-              {:identity    ["trigger-two" "test"]
-               :description "test trigger"
-               :start       #inst "2019-01-01T00:00:00.000-00:00"
-               :end         #inst "2019-02-01T00:00:00.000-00:00"
-               :priority    101})
-             (.build)
-             (bean)
-             (select-keys [:group :name :description :startTime :endTime :priority])))))
+  (is (not (cronut/concurrent-execution-disallowed? (cronut/scheduler {}))))
 
-(deftest simple-schedule
+  (is (cronut/concurrent-execution-disallowed? (cronut/scheduler {:concurrent-execution-disallowed? true}))))
 
-  (is (= {:repeatCount        0
-          :repeatInterval     0
-          :misfireInstruction 0}
-         (-> (cronut/simple-schedule nil)
-             (.build)
-             (bean)
-             (select-keys [:repeatInterval :repeatCount :misfireInstruction]))))
+(deftest scheduling
 
-  (is (= {:repeatCount        0
-          :repeatInterval     1000
-          :misfireInstruction 0}
-         (-> (cronut/simple-schedule {:interval 1000})
-             (.build)
-             (bean)
-             (select-keys [:repeatInterval :repeatCount :misfireInstruction]))))
+  (let [scheduler (cronut/scheduler {})
+        _         (cronut/clear scheduler)
+        trigger   (cronut/schedule-job scheduler
+                                       (trigger/interval 2000)
+                                       (map->TestDefrecordJobImpl {:identity    ["test-group" "test-name"]
+                                                                   :description "test job"
+                                                                   :recover?    true
+                                                                   :durable?    false}))]
+    (is (instance? Trigger trigger))
 
-  (is (= {:repeatCount        -1
-          :repeatInterval     1000
-          :misfireInstruction 0}
-         (-> (cronut/simple-schedule {:interval 1000
-                                      :repeat   :forever})
-             (.build)
-             (bean)
-             (select-keys [:repeatInterval :repeatCount :misfireInstruction]))))
+    (is (cronut/unschedule-job scheduler trigger))
 
-  (is (= {:repeatCount        10
-          :repeatInterval     1000
-          :misfireInstruction 0}
-         (-> (cronut/simple-schedule {:interval 1000
-                                      :repeat   10})
-             (.build)
-             (bean)
-             (select-keys [:repeatInterval :repeatCount :misfireInstruction]))))
-
-  (is (= {:repeatCount        10
-          :repeatInterval     1000000
-          :misfireInstruction 0}
-         (-> (cronut/simple-schedule {:interval  1000
-                                      :repeat    10
-                                      :time-unit :seconds})
-             (.build)
-             (bean)
-             (select-keys [:repeatInterval :repeatCount :misfireInstruction]))))
-
-  (is (= {:repeatCount        10
-          :repeatInterval     1000000
-          :misfireInstruction 5}
-         (-> (cronut/simple-schedule {:interval  1000
-                                      :repeat    10
-                                      :time-unit :seconds
-                                      :misfire   :next-existing})
-             (.build)
-             (bean)
-             (select-keys [:repeatInterval :repeatCount :misfireInstruction])))))
-
-(deftest cron-schedule
-
-  (is (thrown? IllegalArgumentException
-               (cronut/cron-schedule {})))
-
-  (is (= {:cronExpression     "*/6 * * * * ?"
-          :timeZone           (TimeZone/getDefault)
-          :misfireInstruction 0}
-         (-> (cronut/cron-schedule {:cron "*/6 * * * * ?"})
-             (.build)
-             (bean)
-             (select-keys [:cronExpression :timeZone :misfireInstruction]))))
-
-  (is (= {:cronExpression     "*/6 * * * * ?"
-          :timeZone           (TimeZone/getTimeZone "UTC")
-          :misfireInstruction 0}
-         (-> (cronut/cron-schedule {:cron      "*/6 * * * * ?"
-                                    :time-zone "UTC"})
-             (.build)
-             (bean)
-             (select-keys [:cronExpression :timeZone :misfireInstruction]))))
-
-  (is (= {:cronExpression     "*/6 * * * * ?"
-          :timeZone           (TimeZone/getTimeZone "UTC")
-          :misfireInstruction 1}
-         (-> (cronut/cron-schedule {:cron      "*/6 * * * * ?"
-                                    :time-zone "UTC"
-                                    :misfire   :fire-and-proceed})
-             (.build)
-             (bean)
-             (select-keys [:cronExpression :timeZone :misfireInstruction])))))
-
+    ;; second call returns false, no job to unschedule
+    (is (not (cronut/unschedule-job scheduler trigger)))))
