@@ -7,7 +7,7 @@
   (:import (java.util UUID)
            (org.quartz Job)))
 
-(defrecord TestDefrecordJobImpl [identity description recover? durable? test-dep]
+(defrecord TestDefrecordJobImpl [identity description recover? durable? test-dep disallowConcurrentExecution?]
   Job
   (execute [this _job-context]
     (log/info "Defrecord Impl:" this)))
