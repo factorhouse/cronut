@@ -50,7 +50,6 @@
 
     (async/<!! (async/timeout 15000))
 
-
     (log/info "deleting job test-group/test-name")
     (cronut/delete-job scheduler "test-name" "test-group")
 
