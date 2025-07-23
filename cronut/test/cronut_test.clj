@@ -28,4 +28,7 @@
                                                                    :durable?    false}))]
     (is (instance? Trigger trigger))
 
-    (is (cronut/unschedule-job scheduler trigger))))
+    (is (cronut/unschedule-job scheduler trigger))
+
+    ;; second call returns false, no job to unschedule
+    (is (not (cronut/unschedule-job scheduler trigger)))))
