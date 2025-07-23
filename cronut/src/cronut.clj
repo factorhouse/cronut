@@ -13,8 +13,8 @@
   [^Scheduler scheduler ^JobKey key]
   (.getJobDetail scheduler key))
 
-(defn ^Trigger schedule-job
-  [^Scheduler scheduler ^TriggerBuilder trigger job]
+(defn schedule-job
+  ^Trigger [^Scheduler scheduler ^TriggerBuilder trigger job]
   (let [detail ^JobDetail (job/detail job (concurrent-execution-disallowed? scheduler))]
     (if-let [^JobDetail previously-scheduled (get-detail scheduler (.getKey detail))]
       (let [built (.build (.forJob trigger previously-scheduled))]
