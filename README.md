@@ -1,6 +1,14 @@
 # Cronut: A Clojure Companion to Quartz
 
-[![Clojars Project](https://img.shields.io/clojars/v/io.factorhouse/cronut.svg)](https://clojars.org/io.factorhouse/cronut)
+[![Cronut Test](https://github.com/factorhouse/cronut/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/factorhouse/cronut/actions/workflows/ci.yml)
+
+### Versions
+
+| Project | Quartz Dependency | Clojars Project |
+| ------------- | ------------------------ | --------------- |
+| cronut | 2.5.0 | [![Clojars Project](https://img.shields.io/clojars/v/io.factorhouse/cronut.svg)](https://clojars.org/io.factorhouse/cronut) |
+| Jetty 10 | 10.0.25 | [![Clojars Project](https://img.shields.io/clojars/v/io.factorhouse/cronut-javax.svg)](https://clojars.org/io.factorhouse/cronut-javax) |
+| Jetty 11 | 11.0.25 | [![Clojars Project](https://img.shields.io/clojars/v/io.factorhouse/cronut-integrant.svg)](https://clojars.org/io.factorhouse/cronut-integrant) |
 
 Cronut provides a data-first Clojure wrapper for the [Quartz Job Scheduler](https://github.com/quartz-scheduler)
 
