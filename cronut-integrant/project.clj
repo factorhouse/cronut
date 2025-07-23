@@ -18,8 +18,8 @@
                                         [org.slf4j/slf4j-api "2.0.17"]
                                         [org.clojure/core.async "1.8.741"]
                                         [clj-kondo "2025.06.05"]]}
-             :jakarta {:dependencies [[io.factorhouse/cronut "0.2.7"]]} ;; TODO fix up after release
-             :javax   {:dependencies [[io.factorhouse/cronut "0.2.7"]]} ;; TODO fix up after release
+             :jakarta {:dependencies [[io.factorhouse/cronut "1.0.0"]]}
+             :javax   {:dependencies [[io.factorhouse/cronut-javax "1.0.0"]]}
              :smoke   {:pedantic? :abort}}
 
   :aliases {"check"  ["with-profile" "+smoke,+jakarta" "check"]
