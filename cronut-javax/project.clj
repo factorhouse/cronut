@@ -1,6 +1,6 @@
 (defproject io.factorhouse/cronut-javax "1.0.0"
 
-  :description "A Clojure companion to Quartz"
+  :description "A Clojure companion to Quartz with Javax compatibility"
 
   :url "https://github.com/factorhouse/cronut"
 
@@ -14,8 +14,7 @@
                  [org.quartz-scheduler/quartz "2.4.0" :exclusions [org.slf4j/slf4j-api]]]
 
   :profiles {:dev   {:resource-paths ["dev-resources"]
-                     :dependencies   [[integrant "0.13.1"]
-                                      [ch.qos.logback/logback-classic "1.3.15"]
+                     :dependencies   [[ch.qos.logback/logback-classic "1.3.15"]
                                       [org.slf4j/slf4j-api "2.0.17"]
                                       [org.clojure/core.async "1.8.741"]
                                       [clj-kondo "2025.06.05"]]}

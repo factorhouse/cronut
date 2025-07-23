@@ -1,9 +1,8 @@
 (ns cronut.integration-test
   (:require [clojure.core.async :as async]
-            [clojure.java.io :as io]
             [clojure.tools.logging :as log]
-            [cronut.integrant :as cig]
-            [integrant.core :as ig])
+            [cronut :as cronut]
+            [cronut.trigger :as trigger])
   (:import (java.util UUID)
            (org.quartz Job)))
 
@@ -12,34 +11,49 @@
   (execute [this _job-context]
     (log/info "Defrecord Impl:" this)))
 
-(defmethod ig/init-key :dep/one
-  [_ config]
-  config)
+(def reify-job (reify Job
+                 (execute [_this _job-context]
+                   (let [rand-id (str (UUID/randomUUID))]
+                     (log/info rand-id "Reified Impl (Job Delay 7s)")
+                     (async/<!! (async/timeout 7000))
+                     (log/info rand-id "Finished")))))
 
-(defmethod ig/init-key :test.job/one
-  [_ config]
-  (reify Job
-    (execute [_this _job-context]
-      (log/info "Reified Impl:" config))))
+;(do (require '[cronut.integration-test :as it])
+;    (it/test-system))
+(defn test-system
+  []
+  (let [scheduler (cronut/scheduler {:concurrent-execution-disallowed? true})]
+    (cronut/clear scheduler)
 
-(defmethod ig/init-key :test.job/two
-  [_ config]
-  (map->TestDefrecordJobImpl config))
+    (async/<!! (async/timeout 2000))
 
-(defmethod ig/init-key :test.job/three
-  [_ config]
-  (reify Job
-    (execute [_this _job-context]
-      (let [rand-id (str (UUID/randomUUID))]
-        (log/info rand-id "Reified Impl (Job Delay 7s):" config)
-        (async/<!! (async/timeout 7000))
-        (log/info rand-id "Finished")))))
+    (log/info "scheduling defrecord job on 1s interval")
+    (cronut/schedule-job scheduler
+                         (trigger/interval 1000)
+                         (map->TestDefrecordJobImpl {:identity    ["test-group" "test-name"]
+                                                     :description "test job"
+                                                     :recover?    true
+                                                     :durable?    false}))
 
-(defn init-system
-  "Convenience for starting integrant systems with cronut data-readers"
-  ([]
-   (init-system (slurp (io/resource "config.edn"))))
-  ([config]
-   (init-system config nil))
-  ([config readers]
-   (ig/init (ig/read-string {:readers (merge cig/data-readers readers)} config))))
+    ;; demonstrate scheduler can start with jobs, and jobs can start after scheduler
+    (cronut/start scheduler)
+
+    (async/<!! (async/timeout 2000))
+
+    ;; demonstrates concurrency disallowed (every second job runs, 10s interval between jobs that should run every 5s)
+    (log/info "scheduling reify/7s/no-misfire job on 5s interval")
+    (cronut/schedule-job scheduler
+                         (trigger/builder {:type    :cron
+                                           :cron    "*/5 * * * * ?"
+                                           :misfire :do-nothing})
+                         reify-job)
+
+    (async/<!! (async/timeout 15000))
+
+
+    (log/info "deleting job test-group/test-name")
+    (cronut/delete-job scheduler "test-name" "test-group")
+
+    (async/<!! (async/timeout 15000))
+
+    (cronut/shutdown scheduler)))
