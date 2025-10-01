@@ -6,7 +6,7 @@
 # Summary
 
 [Cronut](https://github.com/factorhouse/cronut) provides a data-first [Clojure](https://clojure.org/) wrapper
-for [Quartz Scheduler](https://github.com/quartz-scheduler) version `2.4.0`, compatible
+for [Quartz Scheduler](https://github.com/quartz-scheduler/quartz) version `2.4.0`, compatible
 with [Javax](https://jakarta.ee/blogs/javax-jakartaee-namespace-ecosystem-progress/).
 
 Cronut supports **in-memory** scheduling of jobs within a single JVM. JDBC and distributed jobstore are not supported.
