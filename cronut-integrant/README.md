@@ -5,7 +5,7 @@
 
 # Summary
 
-Cronut-Integrant provides bindings for Cronut to [Integrant](https://github.com/weavejester/integrant), the DI
+Cronut-Integrant provides bindings for [Cronut](https://github.com/factorhouse/cronut) to [Integrant](https://github.com/weavejester/integrant), the DI
 framework.
 
 ## Related Projects
