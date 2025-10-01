@@ -7,7 +7,7 @@
   (:import (java.util UUID)
            (org.quartz Job)))
 
-(defrecord TestDefrecordJobImpl [identity description recover? durable? test-dep disallowConcurrentExecution?]
+(defrecord TestDefrecordJobImpl [identity description recover? durable? test-dep disallow-concurrent-execution?]
   Job
   (execute [this _job-context]
     (log/info "Defrecord Impl:" this)))
@@ -36,10 +36,15 @@
         (log/info rand-id "Finished")))))
 
 (defn init-system
-  "Convenience for starting integrant systems with cronut data-readers"
+  "Example of starting integrant cronut systems with data-readers"
   ([]
    (init-system (slurp (io/resource "config.edn"))))
   ([config]
    (init-system config nil))
   ([config readers]
    (ig/init (ig/read-string {:readers (merge cig/data-readers readers)} config))))
+
+(defn halt-system
+  "Example of stopping integrant cronut systems"
+  [system]
+  (ig/halt! system))
