@@ -22,7 +22,7 @@
         _         (cronut/clear scheduler)
         trigger   (cronut/schedule-job scheduler
                                        (trigger/interval 2000)
-                                       (map->TestDefrecordJobImpl {:identity    ["test-group" "test-name"]
+                                       (map->TestDefrecordJobImpl {:identity    ["name1" "group2"]
                                                                    :description "test job"
                                                                    :recover?    true
                                                                    :durable?    false}))]

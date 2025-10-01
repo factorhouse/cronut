@@ -30,7 +30,7 @@
     (log/info "scheduling defrecord job on 1s interval")
     (cronut/schedule-job scheduler
                          (trigger/interval 1000)
-                         (map->TestDefrecordJobImpl {:identity    ["test-group" "test-name"]
+                         (map->TestDefrecordJobImpl {:identity    ["name1" "group2"]
                                                      :description "test job"
                                                      :recover?    true
                                                      :durable?    false}))
@@ -50,8 +50,8 @@
 
     (async/<!! (async/timeout 15000))
 
-    (log/info "deleting job test-group/test-name")
-    (cronut/delete-job scheduler "test-name" "test-group")
+    (log/info "deleting job group2.name1")
+    (cronut/delete-job scheduler "name1" "group2")
 
     (async/<!! (async/timeout 15000))
 

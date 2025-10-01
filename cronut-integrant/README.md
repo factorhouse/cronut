@@ -5,15 +5,15 @@
 
 # Summary
 
-Cronut-Integrant provides bindings for [Cronut](https://github.com/factorhouse/cronut) to [Integrant](https://github.com/weavejester/integrant), the DI
-framework.
+Cronut-Integrant provides bindings for [Cronut](https://github.com/factorhouse/cronut)
+to [Integrant](https://github.com/weavejester/integrant), the DI micro-framework.
 
 ## Related Projects
 
-| Project                                                         | Desription                                                                                                   | Clojars Project                                                                                                                         |
-|-----------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
-| [cronut](https://clojars.org/io.factorhouse/cronut)             | Cronut with [Jakarta](https://en.wikipedia.org/wiki/Jakarta_EE) support (Primary)                            | [![Clojars Project](https://img.shields.io/clojars/v/io.factorhouse/cronut-javax.svg)](https://clojars.org/io.factorhouse/cronut)       |
-| [cronut-javax](https://clojars.org/io.factorhouse/cronut-javax) | Cronut with [Javax](https://jakarta.ee/blogs/javax-jakartaee-namespace-ecosystem-progress/) support (Legacy) | [![Clojars Project](https://img.shields.io/clojars/v/io.factorhouse/cronut-javax.svg)](https://clojars.org/io.factorhouse/cronut-javax) |
+| Project                                                     | Desription                                                                                                   | Clojars Project                                                                                                                         |
+|-------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
+| [cronut](https://github.com/factorhouse/cronut)             | Cronut with [Jakarta](https://en.wikipedia.org/wiki/Jakarta_EE) support (Primary)                            | [![Clojars Project](https://img.shields.io/clojars/v/io.factorhouse/cronut-javax.svg)](https://clojars.org/io.factorhouse/cronut)       |
+| [cronut-javax](https://github.com/factorhouse/cronut-javax) | Cronut with [Javax](https://jakarta.ee/blogs/javax-jakartaee-namespace-ecosystem-progress/) support (Legacy) | [![Clojars Project](https://img.shields.io/clojars/v/io.factorhouse/cronut-javax.svg)](https://clojars.org/io.factorhouse/cronut-javax) |
 
 # Contents
 
@@ -28,8 +28,8 @@ framework.
             - [`#cronut/interval`: Simple Interval Scheduling](#cronutinterval-simple-interval-scheduling)
             - [`#cronut/trigger`: Full trigger definition](#cronuttrigger-full-trigger-definition)
     * [Concurrent execution](#concurrent-execution)
-        + [`:concurrent-execution-disallowed?` on the scheduler](#concurrent-execution-disallowed-on-the-scheduler)
-        + [`:disallow-concurrent-execution?` on a specific job](#disallow-concurrent-execution-on-a-specific-job)
+        + [Global concurrent execution](#global-concurrent-execution)
+        + [Job-specific concurrent execution](#job-specific-concurrent-execution)
         + [Misfire configuration](#misfire-configuration)
 - [System initialization](#system-initialization)
 - [Example system](#example-system)
@@ -52,9 +52,9 @@ Cronut provides access to the Quartz Scheduler, exposed via Integrant with `:cro
 
 The scheduler supports the following fields:
 
-1. (required) :schedule - a sequence of 'items' to schedule, each being a map containing a :job and :trigger
-2. (optional, default false) :concurrent-execution-disallowed? - run all jobs with @DisableConcurrentExecution
-3. (optional, default false) :update-check? check for Quartz updates on system startup.
+1. `:schedule`: (required) - a sequence of 'items' to schedule, each being a map containing a :job and :trigger
+2. `:concurrent-execution-disallowed?`: (optional, default false) - run all jobs with @DisableConcurrentExecution
+3. `:update-check?`: (optional, default false) - check for Quartz updates on system startup
 
 ### Scheduler example
 
@@ -166,11 +166,11 @@ The `#cronut/trigger` tagged literal supports the full set of Quartz configurati
 
 ## Concurrent execution
 
-### `:concurrent-execution-disallowed?` on the scheduler
+### Global concurrent execution
 
 Set `:concurrent-execution-disallowed?` on the scheduler to disable concurrent execution of all jobs.
 
-### `:disallow-concurrent-execution?` on a specific job
+### Job-specific concurrent execution
 
 Set `:disallow-concurrent-execution?` on a specific job to disable concurrent execution of that job only.
 
@@ -221,7 +221,7 @@ Integrant configuration source: [dev-resources/config.edn](dev-resources/config.
 
  :test.job/one     {:dep-one #ig/ref :dep/one}
 
- :test.job/two     {:identity    ["test-group" "test-name"]
+ :test.job/two     {:identity    ["name1" "group2"]
                     :description "test job"
                     :recover?    true
                     :durable?    false

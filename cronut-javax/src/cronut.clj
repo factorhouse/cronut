@@ -5,11 +5,31 @@
   (:import (org.quartz JobDetail JobKey Scheduler Trigger TriggerBuilder TriggerKey)
            (org.quartz.impl StdSchedulerFactory)))
 
+(defn scheduler
+  "Create a new Quartz scheduler:
+     :concurrent-execution-disallowed? - run all jobs with @DisableConcurrentExecution (default false)
+     :update-check? - check for Quartz updates on system startup (default: false)"
+  [{:keys [update-check? concurrent-execution-disallowed?]}]
+  (log/infof "initializing scheduler")
+  (when-not update-check?
+    (System/setProperty "org.terracotta.quartz.skipUpdateCheck" "true")
+    (log/infof "with quartz update check disabled"))
+  (let [scheduler (StdSchedulerFactory/getDefaultScheduler)]
+    (if concurrent-execution-disallowed?
+      (do
+        (log/infof "with global concurrent execution disallowed")
+        (.put (.getContext scheduler) "concurrentExecutionDisallowed?" "true"))
+      (.put (.getContext scheduler) "concurrentExecutionDisallowed?" "false"))
+    (.setJobFactory scheduler (job/factory))
+    scheduler))
+
 (defn concurrent-execution-disallowed?
+  "Determine if a scheduler has concurrent job execution disallowed"
   [^Scheduler scheduler]
   (= "true" (get (.getContext scheduler) "concurrentExecutionDisallowed?")))
 
 (defn get-detail
+  "Get the job detail for a key"
   [^Scheduler scheduler ^JobKey key]
   (.getJobDetail scheduler key))
 
@@ -35,56 +55,56 @@
       (recur (rest schedule) (conj triggers (schedule-job scheduler trigger job)))
       triggers)))
 
-(defn scheduler
-  [{:keys [update-check? concurrent-execution-disallowed?]}]
-  (log/infof "initializing scheduler")
-  (when-not update-check?
-    (System/setProperty "org.terracotta.quartz.skipUpdateCheck" "true")
-    (log/infof "with quartz update check disabled"))
-  (let [scheduler (StdSchedulerFactory/getDefaultScheduler)]
-    (if concurrent-execution-disallowed?
-      (do
-        (log/infof "with global concurrent execution disallowed")
-        (.put (.getContext scheduler) "concurrentExecutionDisallowed?" "true"))
-      (.put (.getContext scheduler) "concurrentExecutionDisallowed?" "false"))
-    (.setJobFactory scheduler (job/factory))
-    scheduler))
-
 (defn pause-job
-  ([^Scheduler scheduler group name]
+  ([^Scheduler scheduler name group]
    (.pauseJob scheduler (JobKey. name group)))
   ([^Scheduler scheduler ^Trigger trigger]
    (.pauseJob scheduler (.getJobKey trigger))))
 
 (defn resume-job
-  ([^Scheduler scheduler group name]
+  ([^Scheduler scheduler name group]
    (.resumeJob scheduler (JobKey. name group)))
   ([^Scheduler scheduler ^Trigger trigger]
    (.resumeJob scheduler (.getJobKey trigger))))
 
+(defn unschedule-job
+  ([^Scheduler scheduler name group]
+   (.unscheduleJob scheduler (TriggerKey. name group)))
+  ([^Scheduler scheduler ^Trigger trigger]
+   (.unscheduleJob scheduler (.getKey trigger))))
+
+(defn delete-job
+  ([^Scheduler scheduler name group]
+   (.deleteJob scheduler (JobKey. name group)))
+  ([^Scheduler scheduler ^Trigger trigger]
+   (.deleteJob scheduler (.getJobKey trigger))))
+
 (defn pause-trigger
-  ([^Scheduler scheduler group name]
+  ([^Scheduler scheduler name group]
    (.pauseTrigger scheduler (TriggerKey. name group)))
   ([^Scheduler scheduler ^Trigger trigger]
    (.pauseTrigger scheduler (.getKey trigger))))
 
 (defn resume-trigger
-  ([^Scheduler scheduler group name]
+  ([^Scheduler scheduler name group]
    (.resumeTrigger scheduler (TriggerKey. name group)))
   ([^Scheduler scheduler ^Trigger trigger]
    (.resumeTrigger scheduler (.getKey trigger))))
 
-(defn delete-job
-  ([^Scheduler scheduler group name]
-   (.deleteJob scheduler (JobKey. name group)))
-  ([^Scheduler scheduler ^Trigger trigger]
-   (.deleteJob scheduler (.getJobKey trigger))))
+(defn start
+  [^Scheduler scheduler]
+  (.start scheduler)
+  scheduler)
 
-(defn unschedule-job
-  ([^Scheduler scheduler group name]
-   (.unscheduleJob scheduler (TriggerKey. name group)))
-  ([^Scheduler scheduler ^Trigger trigger]
-   (.unscheduleJob scheduler (.getKey trigger))))
+(defn start-delayed
+  [^Scheduler scheduler delay-s]
+  (.startDelayed scheduler delay-s)
+  scheduler)
+
+(defn standby
+  [^Scheduler scheduler]
+  (.standby scheduler)
+  scheduler)
 
 (defn pause-all
   [^Scheduler scheduler]
@@ -99,12 +119,10 @@
   (.clear scheduler)
   scheduler)
 
-(defn start
-  [^Scheduler scheduler]
-  (.start scheduler)
-  scheduler)
-
 (defn shutdown
-  [scheduler]
-  (.shutdown ^Scheduler scheduler)
-  scheduler)
+  ([scheduler]
+   (.shutdown ^Scheduler scheduler)
+   scheduler)
+  ([scheduler wait?]
+   (.shutdown ^Scheduler scheduler wait?)
+   scheduler))
