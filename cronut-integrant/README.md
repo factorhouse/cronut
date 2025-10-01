@@ -6,29 +6,30 @@
 # Contents
 
 - [Summary](#summary)
-- [Usage](#usage)
-    * [`:cronut/scheduler`](#cronutscheduler)
-        + [The `:job`](#the-job)
-            - [Example job](#example-job)
-        + [The `:trigger`](#the-trigger)
-        + [Trigger tagged literals](#trigger-tagged-literals)
+- [Configuration](#configuration)
+    * [`:cronut/scheduler` definition](#cronutscheduler-definition)
+        + [Scheduler example](#scheduler-example)
+    * [`:job` definition](#job-definition)
+        + [Job example](#job-example)
+    * [`:trigger` definition](#trigger-definition)
+        + [`:trigger` tagged literals](#trigger-tagged-literals)
             - [`#cronut/cron`: Simple Cron Scheduling](#cronutcron-simple-cron-scheduling)
             - [`#cronut/interval`: Simple Interval Scheduling](#cronutinterval-simple-interval-scheduling)
             - [`#cronut/trigger`: Full trigger definition](#cronuttrigger-full-trigger-definition)
-        + [Controlling concurrent execution](#controlling-concurrent-execution)
-            - [`:concurrent-execution-disallowed?` on the global scheduler](#concurrent-execution-disallowed-on-the-global-scheduler)
-            - [`:disallow-concurrent-execution?` on a specific job](#disallow-concurrent-execution-on-a-specific-job)
-            - [Misfire configuration](#misfire-configuration)
-    * [Integrant system initialization](#integrant-system-initialization)
-    * [Example system](#example-system)
-        + [Integrant configuration](#integrant-configuration)
-        + [Job definitions](#job-definitions)
-        + [Helper functions](#helper-functions)
-        + [Putting it together](#putting-it-together)
-            - [Starting the system](#starting-the-system)
-            - [Logs of the running system](#logs-of-the-running-system)
-            - [Stopping the system](#stopping-the-system)
-    * [License](#license)
+    * [Concurrent execution](#concurrent-execution)
+        + [`:concurrent-execution-disallowed?` on the global scheduler](#concurrent-execution-disallowed-on-the-global-scheduler)
+        + [`:disallow-concurrent-execution?` on a specific job](#disallow-concurrent-execution-on-a-specific-job)
+        + [Misfire configuration](#misfire-configuration)
+- [System initialization](#system-initialization)
+- [Example system](#example-system)
+    * [Configuration](#configuration-1)
+    * [Job definitions](#job-definitions)
+    * [Helper functions](#helper-functions)
+    * [Putting it together](#putting-it-together)
+        + [Starting the system](#starting-the-system)
+        + [Logs of the running system](#logs-of-the-running-system)
+        + [Stopping the system](#stopping-the-system)
+- [License](#license)
 
 # Summary
 
@@ -38,9 +39,9 @@ the [Quartz Job Scheduler](https://github.com/quartz-scheduler).
 Cronut-Integrant provides bindings for Cronut to [Integrant](https://github.com/weavejester/integrant), the DI
 framework.
 
-# Usage
+# Configuration
 
-## `:cronut/scheduler`
+## `:cronut/scheduler` definition
 
 Cronut provides lifecycle implementation for the Quartz Scheduler, exposed via Integrant with `:cronut/scheduler`
 
@@ -50,7 +51,7 @@ The scheduler supports the following fields:
 2. (optional, default false) :concurrent-execution-disallowed? - run all jobs with @DisableConcurrentExecution
 2. (optional, default false) :update-check? check for Quartz updates on system startup.
 
-e.g.
+### Scheduler example
 
 ````clojure
 :cronut/scheduler {:schedule                         [{:job     #ig/ref :test.job/two
@@ -61,7 +62,7 @@ e.g.
                    :concurrent-execution-disallowed? true}
 ````
 
-### The `:job`
+## `:job` definition
 
 The `:job` in every scheduled item must implement the org.quartz.Job interface
 
@@ -91,7 +92,7 @@ them), however if you do want that control you will likely use the `defrecord` a
 
 Concurrent execution can be controlled on a per-job bases with the `disallow-concurrent-execution?` flag.
 
-#### Example job
+### Job example
 
 ````clojure
 :test.job/two {:identity                       ["job-two" "test"]
@@ -103,12 +104,12 @@ Concurrent execution can be controlled on a per-job bases with the `disallow-con
                :dep-two                        #ig/ref :test.job/one}
 ````                    
 
-### The `:trigger`
+## `:trigger` definition
 
 The `:trigger` in every scheduled item must resolve to an org.quartz.Trigger of some variety or another, to ease that
 resolution Cronut provides the following tagged literals:
 
-### Trigger tagged literals
+### `:trigger` tagged literals
 
 #### `#cronut/cron`: Simple Cron Scheduling
 
@@ -158,17 +159,17 @@ The `#cronut/trigger` tagged literal supports the full set of Quartz configurati
                           :priority    4}
 ````
 
-### Controlling concurrent execution
+## Concurrent execution
 
-#### `:concurrent-execution-disallowed?` on the global scheduler
+### `:concurrent-execution-disallowed?` on the global scheduler
 
 Set `:concurrent-execution-disallowed?` on the scheduler to disable concurrent execution of all jobs.
 
-#### `:disallow-concurrent-execution?` on a specific job
+### `:disallow-concurrent-execution?` on a specific job
 
 Set `:disallow-concurrent-execution?` on a specific job to disable concurrent execution of that job only.
 
-#### Misfire configuration
+### Misfire configuration
 
 If you disable concurrent job execution ensure you understand Quartz Misfire options and remember to set
 `org.quartz.jobStore.misfireThreshold=[some ms value]` in your quartz.properties file. See Quartz documentation for more
@@ -177,7 +178,7 @@ information.
 See our test-resources/config.edn and test-resources/org/quartz/quartz.properties for examples of misfire threshold and
 behaviour configuration.
 
-## Integrant system initialization
+# System initialization
 
 When initializing an Integrant system you will need to provide the Cronut data readers.
 
@@ -201,12 +202,12 @@ e.g.
    (ig/init (ig/read-string {:readers (merge cronut/data-readers readers)} config))))
 ````
 
-## Example system
+# Example system
 
 This repository contains an example system composed of of integratant configuration, job definitions, and helper
 functions.
 
-### Integrant configuration
+## Configuration
 
 Integrant configuration source: [dev-resources/config.edn](dev-resources/config.edn).
 
@@ -277,7 +278,7 @@ Integrant configuration source: [dev-resources/config.edn](dev-resources/config.
 
 ````
 
-### Job definitions
+## Job definitions
 
 Job definitions source: [test/cronut/integration-test.clj](test/cronut/integration_test.clj)
 
@@ -311,7 +312,7 @@ Job definitions source: [test/cronut/integration-test.clj](test/cronut/integrati
         (log/info rand-id "Finished")))))
 ```
 
-### Helper functions
+## Helper functions
 
 Helper functions source: [test/cronut/integration-test.clj](test/cronut/integration_test.clj)
 
@@ -331,9 +332,9 @@ Helper functions source: [test/cronut/integration-test.clj](test/cronut/integrat
   (ig/halt! system))
 ````
 
-### Putting it together
+## Putting it together
 
-#### Starting the system
+### Starting the system
 
 ```clojure
 (do
@@ -341,7 +342,7 @@ Helper functions source: [test/cronut/integration-test.clj](test/cronut/integrat
   (test/init-system))
 ```
 
-#### Logs of the running system
+### Logs of the running system
 
 ```bash
 16:29:37.378 INFO  [nREPL-session-03644f18-045b-47e8-b0be-5c9b069c6ee0] cronut – initializing scheduler
@@ -420,13 +421,13 @@ Helper functions source: [test/cronut/integration-test.clj](test/cronut/integrat
 16:29:54.874 INFO  [CronutScheduler_Worker-5] cronut.integration-test – Defrecord Impl: #cronut.integration_test.TestDefrecordJobImpl{:identity [test-group test-name], :description test job, :recover? true, :durable? false, :test-dep nil, :disallow-concurrent-execution? nil, :dep-one {:a 1}, :dep-two #object[cronut.integration_test$eval13104$fn$reify__13106 0x45425cf3 cronut.integration_test$eval13104$fn$reify__13106@45425cf3]}
 ```
 
-#### Stopping the system
+### Stopping the system
 
 ```clojure
 (test/halt-system *1)
 ```
 
-## License
+# License
 
 Distributed under the Apache 2.0 License.
 
