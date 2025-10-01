@@ -5,11 +5,15 @@
 
 # Summary
 
-[Cronut](https://github.com/factorhouse/cronut) provides a data-first Clojure wrapper for
-the [Quartz Job Scheduler](https://github.com/quartz-scheduler).
-
 Cronut-Integrant provides bindings for Cronut to [Integrant](https://github.com/weavejester/integrant), the DI
 framework.
+
+## Related Projects
+
+| Project                                                         | Desription                                                                                                   | Clojars Project                                                                                                                         |
+|-----------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
+| [cronut](https://clojars.org/io.factorhouse/cronut)             | Cronut with [Jakarta](https://en.wikipedia.org/wiki/Jakarta_EE) support (Primary)                            | [![Clojars Project](https://img.shields.io/clojars/v/io.factorhouse/cronut-javax.svg)](https://clojars.org/io.factorhouse/cronut)       |
+| [cronut-javax](https://clojars.org/io.factorhouse/cronut-javax) | Cronut with [Javax](https://jakarta.ee/blogs/javax-jakartaee-namespace-ecosystem-progress/) support (Legacy) | [![Clojars Project](https://img.shields.io/clojars/v/io.factorhouse/cronut-javax.svg)](https://clojars.org/io.factorhouse/cronut-javax) |
 
 # Contents
 
@@ -24,7 +28,7 @@ framework.
             - [`#cronut/interval`: Simple Interval Scheduling](#cronutinterval-simple-interval-scheduling)
             - [`#cronut/trigger`: Full trigger definition](#cronuttrigger-full-trigger-definition)
     * [Concurrent execution](#concurrent-execution)
-        + [`:concurrent-execution-disallowed?` on the global scheduler](#concurrent-execution-disallowed-on-the-global-scheduler)
+        + [`:concurrent-execution-disallowed?` on the scheduler](#concurrent-execution-disallowed-on-the-scheduler)
         + [`:disallow-concurrent-execution?` on a specific job](#disallow-concurrent-execution-on-a-specific-job)
         + [Misfire configuration](#misfire-configuration)
 - [System initialization](#system-initialization)
@@ -162,7 +166,7 @@ The `#cronut/trigger` tagged literal supports the full set of Quartz configurati
 
 ## Concurrent execution
 
-### `:concurrent-execution-disallowed?` on the global scheduler
+### `:concurrent-execution-disallowed?` on the scheduler
 
 Set `:concurrent-execution-disallowed?` on the scheduler to disable concurrent execution of all jobs.
 

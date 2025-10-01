@@ -13,10 +13,10 @@ Cronut supports **in-memory** scheduling of jobs within a single JVM. JDBC and d
 
 ## Related Projects
 
-| Project                                                                 | Desription                                                                                       | Clojars Project                                                                                                                                 |
-|-------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------|
-| [cronut-javax](https://clojars.org/io.factorhouse/cronut-javax)         | [Javax](https://jakarta.ee/blogs/javax-jakartaee-namespace-ecosystem-progress/) support (Legacy) | [![Clojars Project](https://img.shields.io/clojars/v/io.factorhouse/cronut-javax.svg)](https://clojars.org/io.factorhouse/cronut-javax)         |
-| [cronut-integrant](https://clojars.org/io.factorhouse/cronut-integrant) | [Integrant](https://github.com/weavejester/integrant) bindings for Cronut                        | [![Clojars Project](https://img.shields.io/clojars/v/io.factorhouse/cronut-integrant.svg)](https://clojars.org/io.factorhouse/cronut-integrant) |                                                                                                                                        | 
+| Project                                                                 | Desription                                                                                                   | Clojars Project                                                                                                                                 |
+|-------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------|
+| [cronut-javax](https://clojars.org/io.factorhouse/cronut-javax)         | Cronut with [Javax](https://jakarta.ee/blogs/javax-jakartaee-namespace-ecosystem-progress/) support (Legacy) | [![Clojars Project](https://img.shields.io/clojars/v/io.factorhouse/cronut-javax.svg)](https://clojars.org/io.factorhouse/cronut-javax)         |
+| [cronut-integrant](https://clojars.org/io.factorhouse/cronut-integrant) | [Integrant](https://github.com/weavejester/integrant) bindings for Cronut                                    | [![Clojars Project](https://img.shields.io/clojars/v/io.factorhouse/cronut-integrant.svg)](https://clojars.org/io.factorhouse/cronut-integrant) |
 
 # Contents
 
