@@ -38,7 +38,7 @@
   [job concurrent-execution-disallowed?]
   (let [{:keys [identity description recover? durable? disallow-concurrent-execution?]} job]
     (.build (cond-> (-> (JobBuilder/newJob (if (or concurrent-execution-disallowed? ;; global concurrency disallowed flag
-                                                   disallow-concurrent-execution?) ;; job specific concurrency dissalowed flag
+                                                   disallow-concurrent-execution?) ;; job specific concurrency disallowed flag
                                              SerialProxyJob ProxyJob))
                         (.setJobData (JobDataMap. {"job-impl" job})))
               (seq identity) (.withIdentity (first identity) (second identity))

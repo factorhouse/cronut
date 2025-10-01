@@ -13,12 +13,12 @@ Cronut-Integrant provides bindings for Cronut to [Integrant](https://github.com/
 
 ## :cronut/scheduler
 
-Cronut provides lifecycle implementation for the Quartz Scheduler, exposed via Integrant / `:cronut/scheduler`
+Cronut provides lifecycle implementation for the Quartz Scheduler, exposed via Integrant with `:cronut/scheduler`
 
 The scheduler supports the following fields:
 
 1. (required) :schedule - a sequence of 'items' to schedule, each being a map containing a :job and :trigger
-2. (optional, default false) :disallowConcurrentExecution? - run all jobs with @DisableConcurrentExecution
+2. (optional, default false) :concurrent-execution-disallowed? - run all jobs with @DisableConcurrentExecution
 2. (optional, default false) :update-check? check for Quartz updates on system startup.
 
 e.g.
@@ -29,18 +29,8 @@ e.g.
                                {:job     #ig/ref :test.job/two
                                 :trigger #cronut/cron "*/8 * * * * ?"
                                 :misfire :do-nothing}]
-                   :disallowConcurrentExecution? true}
+                   :concurrent-execution-disallowed? true}
 ````
-
-### Controlling Concurrent Execution
-
-Cronut 0.2.6+ supports the option to disable concurrent execution of jobs (see configuration, above).
-
-This flag is set at a global level and affects all scheduled jobs. Raise a PR if you want to intermingle concurrency.
-
-If you disable concurrent job execution ensure you understand Quartz Misfire options and remember to set `org.quartz.jobStore.misfireThreshold=[some ms value]` in your quartz.properties file. See Quartz documentation for more information. 
-
-See our test-resources/config.edn and test-resources/org/quartz/quartz.properties for examples.
 
 ### The :job
 
@@ -84,6 +74,22 @@ and pass that configuration through edn, e.g.
 
 The `:trigger` in every scheduled item must resolve to an org.quartz.Trigger of some variety or another, to ease that 
 resolution Cronut provides the following tagged literals:
+
+### Controlling concurrent execution
+
+#### Global scheduler `:concurrent-execution-disallowed?`
+
+Set `:concurrent-execution-disallowed?` on the scheduler to disable concurrent execution of all jobs.
+
+#### Local job `:disallow-concurrent-execution?`
+
+Set `:disallow-concurrent-execution?` on a specific job to disable concurrent execution of that job only.
+
+#### Misfire configuration
+
+If you disable concurrent job execution ensure you understand Quartz Misfire options and remember to set `org.quartz.jobStore.misfireThreshold=[some ms value]` in your quartz.properties file. See Quartz documentation for more information.
+
+See our test-resources/config.edn and test-resources/org/quartz/quartz.properties for examples of misfire threshold and behaviour configuration.
 
 ### Tagged Literals
 
