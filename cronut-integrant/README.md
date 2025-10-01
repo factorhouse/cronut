@@ -5,7 +5,7 @@
 
 # Summary
 
-Cronut provides a data-first Clojure wrapper for the [Quartz Job Scheduler](https://github.com/quartz-scheduler).
+[Cronut](https://github.com/factorhouse/cronut) provides a data-first Clojure wrapper for the [Quartz Job Scheduler](https://github.com/quartz-scheduler).
 
 Cronut-Integrant provides bindings for Cronut to [Integrant](https://github.com/weavejester/integrant), the DI
 framework.
