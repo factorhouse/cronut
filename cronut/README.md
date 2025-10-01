@@ -6,20 +6,18 @@
 # Summary
 
 [Cronut](https://github.com/factorhouse/cronut) provides a data-first Clojure wrapper for
-the [Quartz Job Scheduler](https://github.com/quartz-scheduler).
+the [Quartz Job Scheduler](https://github.com/quartz-scheduler) version `2.5.0`.
 
 Cronut supports **in-memory** scheduling of jobs within a single JVM. JDBC and distributed jobstore are not supported.
 
+Cronut is compatible with [Jakarta](https://en.wikipedia.org/wiki/Jakarta_EE).
+
 ## Related Projects
 
-This project is compatible with [Jakarta](https://en.wikipedia.org/wiki/Jakarta_EE), the following projects
-provide [Javax](https://jakarta.ee/blogs/javax-jakartaee-namespace-ecosystem-progress/) compatibility and support for
-[Integrant](https://github.com/weavejester/integrant) configuration.
-
-| Project                                                                 | Quartz Dependency | Desription                    | Clojars Project                                                                                                                                 |
-|-------------------------------------------------------------------------|-------------------|-------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------|
-| [cronut-javax](https://clojars.org/io.factorhouse/cronut-javax)         | 2.4.0             | Legacy (Javax) project        | [![Clojars Project](https://img.shields.io/clojars/v/io.factorhouse/cronut-javax.svg)](https://clojars.org/io.factorhouse/cronut-javax)         |
-| [cronut-integrant](https://clojars.org/io.factorhouse/cronut-integrant) | -                 | Integrant bindings for Cronut | [![Clojars Project](https://img.shields.io/clojars/v/io.factorhouse/cronut-integrant.svg)](https://clojars.org/io.factorhouse/cronut-integrant) |
+| Project                                                                 | Desription                                                                                       | Clojars Project                                                                                                                                 |
+|-------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------|
+| [cronut-javax](https://clojars.org/io.factorhouse/cronut-javax)         | [Javax](https://jakarta.ee/blogs/javax-jakartaee-namespace-ecosystem-progress/) support (Legacy) | [![Clojars Project](https://img.shields.io/clojars/v/io.factorhouse/cronut-javax.svg)](https://clojars.org/io.factorhouse/cronut-javax)         |
+| [cronut-integrant](https://clojars.org/io.factorhouse/cronut-integrant) | [Integrant](https://github.com/weavejester/integrant) bindings for Cronut                        | [![Clojars Project](https://img.shields.io/clojars/v/io.factorhouse/cronut-integrant.svg)](https://clojars.org/io.factorhouse/cronut-integrant) |                                                                                                                                        | 
 
 # Contents
 
