@@ -20,55 +20,24 @@ Cronut supports **in-memory** scheduling of jobs within a single JVM. JDBC and d
 
 # Contents
 
-- [Configuration](#configuration)
-    * [`:cronut/scheduler` definition](#cronutscheduler-definition)
-        + [Scheduler example](#scheduler-example)
-    * [`:job` definition](#job-definition)
-        + [Job example](#job-example)
-    * [`:trigger` definition](#trigger-definition)
-        + [`:trigger` tagged literals](#trigger-tagged-literals)
-            - [`#cronut/cron`: Simple Cron Scheduling](#cronutcron-simple-cron-scheduling)
-            - [`#cronut/interval`: Simple Interval Scheduling](#cronutinterval-simple-interval-scheduling)
-            - [`#cronut/trigger`: Full trigger definition](#cronuttrigger-full-trigger-definition)
-    * [Concurrent execution](#concurrent-execution)
-        + [
-          `:concurrent-execution-disallowed?` on the global scheduler](#concurrent-execution-disallowed-on-the-global-scheduler)
-        + [`:disallow-concurrent-execution?` on a specific job](#disallow-concurrent-execution-on-a-specific-job)
-        + [Misfire configuration](#misfire-configuration)
-- [System initialization](#system-initialization)
-- [Example system](#example-system)
-    * [Configuration](#configuration-1)
-    * [Job definitions](#job-definitions)
-    * [Helper functions](#helper-functions)
-    * [Putting it together](#putting-it-together)
-        + [Starting the system](#starting-the-system)
-        + [Logs of the running system](#logs-of-the-running-system)
-        + [Stopping the system](#stopping-the-system)
-- [License](#license)
-
 # Configuration
 
 A quartz `scheduler` runs a `job` on a schedule defined by a `trigger`.
 
-## `:cronut/scheduler` definition
+## `cronut/scheduler` definition
 
-Cronut provides lifecycle implementation for the Quartz Scheduler, exposed via Integrant with `:cronut/scheduler`
+Cronut provides access to the Quartz Scheduler, exposed via the `cronut/scheduler` function.
 
-The scheduler supports the following fields:
+Create a scheduler with the following configuration:
 
-1. (required) :schedule - a sequence of 'items' to schedule, each being a map containing a :job and :trigger
-2. (optional, default false) :concurrent-execution-disallowed? - run all jobs with @DisableConcurrentExecution
+1. (optional, default false) :concurrent-execution-disallowed? - run all jobs with @DisableConcurrentExecution
 2. (optional, default false) :update-check? check for Quartz updates on system startup.
 
 ### Scheduler example
 
 ````clojure
-:cronut/scheduler {:schedule                         [{:job     #ig/ref :test.job/two
-                                                       :trigger #cronut/interval 3500}
-                                                      {:job     #ig/ref :test.job/two
-                                                       :trigger #cronut/cron "*/8 * * * * ?"
-                                                       :misfire :do-nothing}]
-                   :concurrent-execution-disallowed? true}
+(cronut/scheduler {:concurrent-execution-disallowed? true
+                   :update-check?                    false})
 ````
 
 ## `:job` definition

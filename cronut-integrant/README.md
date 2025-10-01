@@ -48,13 +48,13 @@ A quartz `scheduler` runs a `job` on a schedule defined by a `trigger`.
 
 ## `:cronut/scheduler` definition
 
-Cronut provides lifecycle implementation for the Quartz Scheduler, exposed via Integrant with `:cronut/scheduler`
+Cronut provides access to the Quartz Scheduler, exposed via Integrant with `:cronut/scheduler`
 
 The scheduler supports the following fields:
 
 1. (required) :schedule - a sequence of 'items' to schedule, each being a map containing a :job and :trigger
 2. (optional, default false) :concurrent-execution-disallowed? - run all jobs with @DisableConcurrentExecution
-2. (optional, default false) :update-check? check for Quartz updates on system startup.
+3. (optional, default false) :update-check? check for Quartz updates on system startup.
 
 ### Scheduler example
 
