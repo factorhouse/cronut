@@ -5,7 +5,7 @@
             [cronut.trigger :as trigger])
   (:import (org.quartz Job Trigger)))
 
-(defrecord TestDefrecordJobImpl [identity description recover? durable? test-dep disallowConcurrentExecution?]
+(defrecord TestDefrecordJobImpl [identity description recover? durable? test-dep disallow-concurrent-execution?]
   Job
   (execute [this _job-context]
     (log/info "Defrecord Impl:" this)))
