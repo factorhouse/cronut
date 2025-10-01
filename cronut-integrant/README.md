@@ -3,9 +3,16 @@
 [![Cronut Test](https://github.com/factorhouse/cronut/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/factorhouse/cronut/actions/workflows/ci.yml)
 [![Clojars Project](https://img.shields.io/clojars/v/io.factorhouse/cronut-integrant.svg)](https://clojars.org/io.factorhouse/cronut-integrant)
 
+# Summary
+
+[Cronut](https://github.com/factorhouse/cronut) provides a data-first Clojure wrapper for
+the [Quartz Job Scheduler](https://github.com/quartz-scheduler).
+
+Cronut-Integrant provides bindings for Cronut to [Integrant](https://github.com/weavejester/integrant), the DI
+framework.
+
 # Contents
 
-- [Summary](#summary)
 - [Configuration](#configuration)
     * [`:cronut/scheduler` definition](#cronutscheduler-definition)
         + [Scheduler example](#scheduler-example)
@@ -30,14 +37,6 @@
         + [Logs of the running system](#logs-of-the-running-system)
         + [Stopping the system](#stopping-the-system)
 - [License](#license)
-
-# Summary
-
-[Cronut](https://github.com/factorhouse/cronut) provides a data-first Clojure wrapper for
-the [Quartz Job Scheduler](https://github.com/quartz-scheduler).
-
-Cronut-Integrant provides bindings for Cronut to [Integrant](https://github.com/weavejester/integrant), the DI
-framework.
 
 # Configuration
 
