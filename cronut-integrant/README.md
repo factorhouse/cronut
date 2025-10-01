@@ -3,9 +3,37 @@
 [![Cronut Test](https://github.com/factorhouse/cronut/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/factorhouse/cronut/actions/workflows/ci.yml)
 [![Clojars Project](https://img.shields.io/clojars/v/io.factorhouse/cronut-integrant.svg)](https://clojars.org/io.factorhouse/cronut-integrant)
 
+# Contents
+
+- [Summary](#summary)
+- [Usage](#usage)
+    * [`:cronut/scheduler`](#cronutscheduler)
+        + [The `:job`](#the-job)
+            - [Example job](#example-job)
+        + [The `:trigger`](#the-trigger)
+        + [Trigger tagged literals](#trigger-tagged-literals)
+            - [`#cronut/cron`: Simple Cron Scheduling](#cronutcron-simple-cron-scheduling)
+            - [`#cronut/interval`: Simple Interval Scheduling](#cronutinterval-simple-interval-scheduling)
+            - [`#cronut/trigger`: Full trigger definition](#cronuttrigger-full-trigger-definition)
+        + [Controlling concurrent execution](#controlling-concurrent-execution)
+            - [`:concurrent-execution-disallowed?` on the global scheduler](#concurrent-execution-disallowed-on-the-global-scheduler)
+            - [`:disallow-concurrent-execution?` on a specific job](#disallow-concurrent-execution-on-a-specific-job)
+            - [Misfire configuration](#misfire-configuration)
+    * [Integrant system initialization](#integrant-system-initialization)
+    * [Example system](#example-system)
+        + [Integrant configuration](#integrant-configuration)
+        + [Job definitions](#job-definitions)
+        + [Helper functions](#helper-functions)
+        + [Putting it together](#putting-it-together)
+            - [Starting the system](#starting-the-system)
+            - [Logs of the running system](#logs-of-the-running-system)
+            - [Stopping the system](#stopping-the-system)
+    * [License](#license)
+
 # Summary
 
-[Cronut](https://github.com/factorhouse/cronut) provides a data-first Clojure wrapper for the [Quartz Job Scheduler](https://github.com/quartz-scheduler).
+[Cronut](https://github.com/factorhouse/cronut) provides a data-first Clojure wrapper for
+the [Quartz Job Scheduler](https://github.com/quartz-scheduler).
 
 Cronut-Integrant provides bindings for Cronut to [Integrant](https://github.com/weavejester/integrant), the DI
 framework.
@@ -38,7 +66,7 @@ e.g.
 The `:job` in every scheduled item must implement the org.quartz.Job interface
 
 The expectation being that every 'job' in your Integrant system will reify that interface, either directly via `reify`
-or by returning a defrecord that implements the interface. e.g.
+or by returning a `defrecord` that implements the interface. e.g.
 
 ````clojure
 (defmethod ig/init-key :test.job/one
@@ -58,12 +86,12 @@ or by returning a defrecord that implements the interface. e.g.
 ````
 
 Cronut supports further Quartz configuration of jobs (identity, description, recovery, and durability) by expecting
-those values to be assoc'd onto your job.
-
-You do not have to set them (in fact in most cases you can likely ignore them), however if you do want that control you
-will likely use the defrecord approach as opposed to the simpler reify option.
+those values to be assoc'd onto your job. You do not have to set them (in fact in most cases you can likely ignore
+them), however if you do want that control you will likely use the `defrecord` approach as opposed to `reify`.
 
 Concurrent execution can be controlled on a per-job bases with the `disallow-concurrent-execution?` flag.
+
+#### Example job
 
 ````clojure
 :test.job/two {:identity                       ["job-two" "test"]
