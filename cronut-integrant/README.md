@@ -40,6 +40,10 @@ framework.
 
 # Configuration
 
+A quartz `scheduler` runs a `job` on a schedule defined by a `trigger`.
+
+These are the key items that we configure with Cronut.
+
 ## `:cronut/scheduler` definition
 
 Cronut provides lifecycle implementation for the Quartz Scheduler, exposed via Integrant with `:cronut/scheduler`
