@@ -3,20 +3,23 @@
 [![Cronut Test](https://github.com/factorhouse/cronut/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/factorhouse/cronut/actions/workflows/ci.yml)
 [![Clojars Project](https://img.shields.io/clojars/v/io.factorhouse/cronut.svg)](https://clojars.org/io.factorhouse/cronut)
 
-### Related Projects
-
-| Project                                                                 | Quartz Dependency | Desription                    | Clojars Project                                                                                                                                 |
-|-------------------------------------------------------------------------|-------------------|-------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------|
-| [cronut](https://clojars.org/io.factorhouse/cronut)                     | 2.5.0             | Primary (Jakarta) project     | [![Clojars Project](https://img.shields.io/clojars/v/io.factorhouse/cronut.svg)](https://clojars.org/io.factorhouse/cronut)                     |
-| [cronut-javax](https://clojars.org/io.factorhouse/cronut-javax)         | 2.4.0             | Legacy (Javax) project        | [![Clojars Project](https://img.shields.io/clojars/v/io.factorhouse/cronut-javax.svg)](https://clojars.org/io.factorhouse/cronut-javax)         |
-| [cronut-integrant](https://clojars.org/io.factorhouse/cronut-integrant) | -                 | Integrant bindings for Cronut | [![Clojars Project](https://img.shields.io/clojars/v/io.factorhouse/cronut-integrant.svg)](https://clojars.org/io.factorhouse/cronut-integrant) |
-
 # Summary
 
 [Cronut](https://github.com/factorhouse/cronut) provides a data-first Clojure wrapper for
 the [Quartz Job Scheduler](https://github.com/quartz-scheduler).
 
 Cronut supports **in-memory** scheduling of jobs within a single JVM. JDBC and distributed jobstore are not supported.
+
+## Related Projects
+
+This project is compatible with [Jakarta](https://en.wikipedia.org/wiki/Jakarta_EE), the following projects
+provide [Javax](https://jakarta.ee/blogs/javax-jakartaee-namespace-ecosystem-progress/) compatibility and support for
+[Integrant](https://github.com/weavejester/integrant) configuration.
+
+| Project                                                                 | Quartz Dependency | Desription                    | Clojars Project                                                                                                                                 |
+|-------------------------------------------------------------------------|-------------------|-------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------|
+| [cronut-javax](https://clojars.org/io.factorhouse/cronut-javax)         | 2.4.0             | Legacy (Javax) project        | [![Clojars Project](https://img.shields.io/clojars/v/io.factorhouse/cronut-javax.svg)](https://clojars.org/io.factorhouse/cronut-javax)         |
+| [cronut-integrant](https://clojars.org/io.factorhouse/cronut-integrant) | -                 | Integrant bindings for Cronut | [![Clojars Project](https://img.shields.io/clojars/v/io.factorhouse/cronut-integrant.svg)](https://clojars.org/io.factorhouse/cronut-integrant) |
 
 # Contents
 
@@ -31,7 +34,8 @@ Cronut supports **in-memory** scheduling of jobs within a single JVM. JDBC and d
             - [`#cronut/interval`: Simple Interval Scheduling](#cronutinterval-simple-interval-scheduling)
             - [`#cronut/trigger`: Full trigger definition](#cronuttrigger-full-trigger-definition)
     * [Concurrent execution](#concurrent-execution)
-        + [`:concurrent-execution-disallowed?` on the global scheduler](#concurrent-execution-disallowed-on-the-global-scheduler)
+        + [
+          `:concurrent-execution-disallowed?` on the global scheduler](#concurrent-execution-disallowed-on-the-global-scheduler)
         + [`:disallow-concurrent-execution?` on a specific job](#disallow-concurrent-execution-on-a-specific-job)
         + [Misfire configuration](#misfire-configuration)
 - [System initialization](#system-initialization)
