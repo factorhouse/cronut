@@ -107,8 +107,7 @@ Concurrent execution can be controlled on a per-job bases with the `disallow-con
 
 ## Triggers
 
-Each cronut trigger must be of tyee `org.quartz.Trigger` of some variety or another, the following functions are
-provided to simplify trigger creation:
+Cronut triggers are of type `org.quartz.Trigger`, the following functions are provided to simplify trigger creation:
 
 #### `cronut.trigger/cron`: Simple Cron Scheduling
 
