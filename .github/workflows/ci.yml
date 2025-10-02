@@ -13,23 +13,13 @@ jobs:
 
     strategy:
       fail-fast: false
-      matrix:
-        project: [cronut, cronut-integrant, cronut-javax]
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Java8
-        if: ${{ matrix.project == 'cronut-javax' }}
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '8'
-
       - name: Setup Java11
-        if: ${{ matrix.project != 'cronut-javax' }}
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: '11'
@@ -41,20 +31,19 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Deps
-        working-directory: ./${{ matrix.project }}
+        working-directory: ./
         run: lein with-profile +smoke deps
 
       - name: Fmt
-        working-directory: ./${{ matrix.project }}
+        working-directory: ./
         run: lein fmt
 
       - name: Kondo
-        working-directory: ./${{ matrix.project }}
+        working-directory: ./
         run: lein kondo
 
       - name: Test
-        if: ${{ matrix.project != 'cronut-integrant' }}
-        working-directory: ./${{ matrix.project }}
+        working-directory: ./
         run: lein test
 
       - name: NVD
@@ -63,17 +52,17 @@ jobs:
           # actions/setup-java changes JAVA_HOME so it needs to be reset to match the depcheck image
           JAVA_HOME: /opt/jdk
         with:
-          project: ${{ matrix.project }}
-          path: ${{ matrix.project }}/target
+          project: cronut 
+          path: ./target
           format: 'HTML'
-          out: ${{ matrix.project }}/reports
+          out: ./reports
           args: >
-            --suppression ${{ matrix.project }}/dependency-check-suppressions.xml
+            --suppression ./dependency-check-suppressions.xml
 
       - name: Persist NVD
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: nvd-${{ matrix.project }}-${{ github.sha }}
-          path: ${{ matrix.project }}/reports/*
+          name: nvd-cronut-${{ github.sha }}
+          path: ./reports/*
           retention-days: 1
