@@ -1,6 +1,11 @@
 # Change Log
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
+## [1.0.1] - 2025-10-02
+
+- Breakout cronut-integrant and cronut-javax into separate project repositories
+- Update tests re: trigger and job key identity
+
 ## [1.0.0] - 2025-07-23
 
 Significant rewrite of internals, splitting into three projects.
