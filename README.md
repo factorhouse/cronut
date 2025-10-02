@@ -75,10 +75,10 @@ To schedule jobs, you can
 * `cronut/schedule-jobs`: schedule multiple jobs at once
 * `cronut/pause-job`: pause a job
 * `cronut/resume-job`: resume a paused job
-* `cronut/unschedule-job`: remove a trigger from the scheduler
-* `cronut/delete-job`: remove a job and all associated triggers from the scheduler
+* `cronut/delete-job`: remove a job from the scheduler
 * `cronut/pause-trigger`: pause a trigger
 * `cronut/resume-trigger`: resume a paused trigger
+* `cronut/unschedule-trigger`: remove a trigger from the scheduler
 
 ## Jobs
 
