@@ -1,5 +1,5 @@
 (ns cronut.trigger
-  (:refer-clojure :exclude [proxy])
+  (:refer-clojure :exclude [key])
   (:import (java.util TimeZone)
            (org.quartz CronScheduleBuilder SimpleScheduleBuilder TriggerBuilder TriggerKey)))
 

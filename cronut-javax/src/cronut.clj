@@ -68,12 +68,6 @@
   ([^Scheduler scheduler ^Trigger trigger]
    (.resumeJob scheduler (.getJobKey trigger))))
 
-(defn unschedule-job
-  ([^Scheduler scheduler name group]
-   (.unscheduleJob scheduler (trigger/key name group)))
-  ([^Scheduler scheduler ^Trigger trigger]
-   (.unscheduleJob scheduler (.getKey trigger))))
-
 (defn delete-job
   ([^Scheduler scheduler name group]
    (.deleteJob scheduler (job/key name group)))
@@ -91,6 +85,13 @@
    (.resumeTrigger scheduler (trigger/key name group)))
   ([^Scheduler scheduler ^Trigger trigger]
    (.resumeTrigger scheduler (.getKey trigger))))
+
+;; unschedule-trigger rather than unschedule-job because it works on trigger identity
+(defn unschedule-trigger
+  ([^Scheduler scheduler name group]
+   (.unscheduleJob scheduler (trigger/key name group)))
+  ([^Scheduler scheduler ^Trigger trigger]
+   (.unscheduleJob scheduler (.getKey trigger))))
 
 (defn start
   [^Scheduler scheduler]
