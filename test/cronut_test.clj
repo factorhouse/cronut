@@ -3,8 +3,7 @@
             [clojure.tools.logging :as log]
             [cronut :as cronut]
             [cronut.trigger :as trigger])
-  (:import (cronut.job ProxyJob)
-           (org.quartz Job JobKey Trigger)))
+  (:import (org.quartz Job JobKey Trigger)))
 
 (defn reify-job
   [n]

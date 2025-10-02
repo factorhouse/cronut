@@ -3,7 +3,7 @@
   (:require [clojure.tools.logging :as log]
             [cronut.job :as job]
             [cronut.trigger :as trigger])
-  (:import (org.quartz JobDetail JobKey Scheduler Trigger TriggerBuilder)
+  (:import (org.quartz JobDetail Scheduler Trigger TriggerBuilder)
            (org.quartz.impl StdSchedulerFactory)))
 
 (defn scheduler
