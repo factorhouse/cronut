@@ -1,6 +1,6 @@
 (ns cronut.job
   (:refer-clojure :exclude [key])
-  (:import (org.quartz DisallowConcurrentExecution Job JobBuilder JobDataMap JobExecutionException JobKey)
+  (:import (org.quartz DisallowConcurrentExecution Job JobBuilder JobDataMap JobDetail JobExecutionException JobKey)
            (org.quartz.spi JobFactory TriggerFiredBundle)))
 
 (defrecord ^{DisallowConcurrentExecution true} SerialProxyJob [proxied-job]
@@ -36,13 +36,11 @@
           (->ProxyJob job))))))
 
 (defn detail
-  [job concurrent-execution-disallowed?]
-  (let [{:keys [identity description recover? durable? disallow-concurrent-execution?]} job]
-    (.build (cond-> (-> (JobBuilder/newJob (if (or concurrent-execution-disallowed? ;; global concurrency disallowed flag
-                                                   disallow-concurrent-execution?) ;; job specific concurrency disallowed flag
-                                             SerialProxyJob ProxyJob))
+  ^JobDetail [job opts]
+  (let [{:keys [name group description recover? durable? disallow-concurrent-execution?]} opts]
+    (.build (cond-> (-> (JobBuilder/newJob (if disallow-concurrent-execution? SerialProxyJob ProxyJob))
                         (.setJobData (JobDataMap. {"job-impl" job})))
-              (seq identity) (.withIdentity (first identity) (second identity))
+              name (.withIdentity name group)
               description (.withDescription description)
               (boolean? recover?) (.requestRecovery recover?)
               (boolean? durable?) (.storeDurably durable?)))))

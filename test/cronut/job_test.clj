@@ -2,7 +2,7 @@
   (:require [clojure.test :refer [deftest is]]
             [cronut.job :as job])
   (:import (cronut.job ProxyJob SerialProxyJob)
-           (org.quartz Job)))
+           (org.quartz Job JobKey)))
 
 (def job-keys [:fullName
                :jobClass
@@ -16,94 +16,56 @@
 
 (deftest job-detail-meta
 
-  (is (= {:fullName                      "group2.name1"
-          :jobClass                      SerialProxyJob
-          :description                   "desc3"
-          :durable                       true
+  (is (= {:fullName                     "job-group.job-name"
+          :jobClass                     SerialProxyJob
+          :description                  "desc3"
+          :durable                      true
           :concurrentExecutionDisallowed true
-          :jobDataMap                    {"job-impl" {:description                    "desc3"
-                                                      :disallow-concurrent-execution? true
-                                                      :durable?                       true
-                                                      :identity                       ["name1" "group2"]
-                                                      :recover?                       true}}}
-         (-> (job/detail {:identity                       ["name1" "group2"]
-                          :description                    "desc3"
-                          :durable?                       true
-                          :recover?                       true
-                          :disallow-concurrent-execution? true} false)
+          :jobDataMap                   {"job-impl" reify-job}}
+         (-> (job/detail reify-job {:name                           "job-name"
+                                    :group                          "job-group"
+                                    :description                    "desc3"
+                                    :durable?                       true
+                                    :recover?                       true
+                                    :disallow-concurrent-execution? true})
              (bean)
-             (select-keys job-keys)))))
+             (select-keys job-keys))))
 
-(deftest job-detail-concurrency-reify-style
+  ;; :name is required before :name :group identity takes effect
+  (is (= {:group                        JobKey/DEFAULT_GROUP
+          :jobClass                     ProxyJob
+          :description                  "desc3"
+          :durable                      false
+          :concurrentExecutionDisallowed false
+          :jobDataMap                   {"job-impl" reify-job}}
+         (-> (job/detail reify-job {:group                          "job-group"
+                                    :description                    "desc3"
+                                    :durable?                       false
+                                    :recover?                       false
+                                    :disallow-concurrent-execution? false})
+             (bean)
+             (select-keys (conj (rest job-keys) :group))))))
+
+(deftest job-detail-concurrency
 
   ;; global concurrentExecutionDisallowed? = false
-  (is (= {:jobClass                      ProxyJob
-          :description                   nil
-          :durable                       false
+  (is (= {:jobClass                     ProxyJob
+          :description                  nil
+          :durable                      false
           :concurrentExecutionDisallowed false
-          :jobDataMap                    {"job-impl" reify-job}}
+          :jobDataMap                   {"job-impl" reify-job}}
          (-> (job/detail reify-job false)
              (bean)
              (select-keys job-keys)
              (dissoc :fullName))))
 
   ;; global concurrentExecutionDisallowed? = true
-  (is (= {:jobClass                      SerialProxyJob
-          :description                   nil
-          :durable                       false
+  (is (= {:jobClass                     SerialProxyJob
+          :description                  nil
+          :durable                      false
           :concurrentExecutionDisallowed true
-          :jobDataMap                    {"job-impl" reify-job}}
-         (-> (job/detail reify-job true)
-             (bean)
-             (select-keys job-keys)
-             (dissoc :fullName)))))
-
-(deftest job-detail-concurrency-defrecord-style
-
-  ;; global concurrentExecutionDisallowed? = false
-  ;; job disallowConcurrentExecution? = false
-  (is (= {:jobClass                      ProxyJob
-          :description                   nil
-          :durable                       false
-          :concurrentExecutionDisallowed false
-          :jobDataMap                    {"job-impl" {}}}
-         (-> (job/detail {} false)
-             (bean)
-             (select-keys job-keys)
-             (dissoc :fullName))))
-
-  ;; global concurrentExecutionDisallowed? true
-  ;; job disallowConcurrentExecution? = false
-  (is (= {:jobClass                      SerialProxyJob
-          :description                   nil
-          :durable                       false
-          :concurrentExecutionDisallowed true
-          :jobDataMap                    {"job-impl" {}}}
-         (-> (job/detail {} true)
-             (bean)
-             (select-keys job-keys)
-             (dissoc :fullName))))
-
-  ;; global concurrentExecutionDisallowed? = false
-  ;; job disallowConcurrentExecution? = true
-  (is (= {:jobClass                      SerialProxyJob
-          :description                   nil
-          :durable                       false
-          :concurrentExecutionDisallowed true
-          :jobDataMap                    {"job-impl" {:disallow-concurrent-execution? true}}}
-         (-> (job/detail {:disallow-concurrent-execution? true} false)
-             (bean)
-             (select-keys job-keys)
-             (dissoc :fullName))))
-
-  ;; global concurrentExecutionDisallowed? = true
-  ;; job disallowConcurrentExecution? = true
-  (is (= {:jobClass                      SerialProxyJob
-          :description                   nil
-          :durable                       false
-          :concurrentExecutionDisallowed true
-          :jobDataMap                    {"job-impl" {:disallow-concurrent-execution? true}}}
-         (-> (job/detail {:disallow-concurrent-execution? true} false)
+          :jobDataMap                   {"job-impl" reify-job}}
+         (-> (job/detail reify-job {:disallow-concurrent-execution? true})
              (bean)
              (select-keys job-keys)
              (dissoc :fullName)))))

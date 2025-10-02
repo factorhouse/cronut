@@ -3,12 +3,14 @@
             [clojure.tools.logging :as log]
             [cronut :as cronut]
             [cronut.trigger :as trigger])
-  (:import (org.quartz Job Trigger)))
+  (:import (cronut.job ProxyJob)
+           (org.quartz Job JobKey Trigger)))
 
-(defrecord TestDefrecordJobImpl [identity description recover? durable? test-dep disallow-concurrent-execution?]
-  Job
-  (execute [this _job-context]
-    (log/info "Defrecord Impl:" this)))
+(defn reify-job
+  [n]
+  (reify Job
+    (execute [_ _]
+      (log/info "Executing job: " n))))
 
 (deftest concurrent-execution-disallowed
 
@@ -18,42 +20,59 @@
 
 (deftest scheduling
 
-  (let [scheduler (cronut/scheduler {})
+  (let [scheduler (cronut/scheduler {:concurrent-execution-disallowed? true})
         _         (cronut/clear scheduler)
         trigger   (cronut/schedule-job scheduler
                                        (trigger/interval 2000)
-                                       (map->TestDefrecordJobImpl {:identity    ["name1" "group1"]
-                                                                   :description "test job"
-                                                                   :recover?    true
-                                                                   :durable?    false}))
+                                       (reify-job 1)
+                                       {:name        "name1"
+                                        :group       "group1"
+                                        :description "test job"
+                                        :recover?    true
+                                        :durable?    false})
         trigger2  (cronut/schedule-job scheduler
                                        (trigger/builder {:type      :simple
                                                          :interval  3000
                                                          :time-unit :millis
                                                          :repeat    :forever
-                                                         :identity  ["trigger-name2" "group1"]})
-                                       (map->TestDefrecordJobImpl {:identity    ["name2" "group2"]
-                                                                   :description "test job"
-                                                                   :recover?    true
-                                                                   :durable?    true}))
+                                                         :name      "trigger-name2"
+                                                         :group     "group1"})
+                                       (reify-job 2)
+                                       {:name        "name2"
+                                        :group       "group2"
+                                        :description "test job"
+                                        :recover?    true
+                                        :durable?    true})
         trigger3  (cronut/schedule-job scheduler
                                        (cronut.trigger/cron "*/8 * * * * ?")
-                                       (map->TestDefrecordJobImpl {:identity    ["name3" "group2"]
-                                                                   :description "test job"
-                                                                   :recover?    false
-                                                                   :durable?    true}))
+                                       (reify-job 3)
+                                       {:name        "name3"
+                                        :group       "group2"
+                                        :description "test job"
+                                        :recover?    false
+                                        :durable?    true})
         trigger4  (cronut/schedule-job scheduler
-                                       (trigger/builder {:type     :cron
-                                                         :cron     "*/5 * * * * ?"
-                                                         :identity ["trigger-name4" "group2"]})
-                                       (map->TestDefrecordJobImpl {:identity    ["name4" "group2"]
-                                                                   :description "test job"
-                                                                   :recover?    false
-                                                                   :durable?    false}))]
+                                       (trigger/builder {:type  :cron
+                                                         :cron  "*/5 * * * * ?"
+                                                         :name  "trigger-name4"
+                                                         :group "group2"})
+                                       (reify-job 4)
+                                       {:name        "name4"
+                                        :group       "group2"
+                                        :description "test job"
+                                        :recover?    false
+                                        :durable?    false})]
     (is (instance? Trigger trigger))
     (is (instance? Trigger trigger2))
     (is (instance? Trigger trigger3))
     (is (instance? Trigger trigger4))
+
+    (testing "scheduler concurrent-execution-disallowed?"
+
+      ;; concurrent-execution-disallowed? set on the scheduler only
+      (is (->> (JobKey. "name1" "group1")
+               (.getJobDetail scheduler)
+               (.isConcurrentExecutionDisallowed))))
 
     (testing "unschedule by trigger"
       (is (cronut/unschedule-trigger scheduler trigger))
