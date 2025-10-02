@@ -13,14 +13,24 @@
              (bean)
              (select-keys [:group :description :priority]))))
 
-  (is (= {:group       "test"
-          :name        "trigger-two"
+  ;; :name is required before :name :group identity takes effect
+  (is (= {:group       "DEFAULT"
+          :description nil
+          :priority    5}
+         (-> (trigger/base-builder {:group "trigger-group"})
+             (.build)
+             (bean)
+             (select-keys [:group :description :priority]))))
+
+  (is (= {:name        "trigger-name"
+          :group       "trigger-group"
           :description "test trigger"
           :priority    101
           :startTime   #inst "2019-01-01T00:00:00.000-00:00"
           :endTime     #inst "2019-02-01T00:00:00.000-00:00"}
          (-> (trigger/base-builder
-              {:identity    ["trigger-two" "test"]
+              {:name        "trigger-name"
+               :group       "trigger-group"
                :description "test trigger"
                :start       #inst "2019-01-01T00:00:00.000-00:00"
                :end         #inst "2019-02-01T00:00:00.000-00:00"
@@ -117,4 +127,3 @@
              (.build)
              (bean)
              (select-keys [:cronExpression :timeZone :misfireInstruction])))))
-

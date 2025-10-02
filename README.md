@@ -27,9 +27,9 @@ Cronut supports **in-memory** scheduling of jobs within a single JVM. JDBC and d
     * [Jobs](#jobs)
         + [Job example](#job-example)
     * [Triggers](#triggers)
-      - [`cronut.trigger/cron`: Simple Cron Scheduling](#cronuttriggercron-simple-cron-scheduling)
-      - [`cronut.trigger/interval`: Simple Interval Scheduling](#cronuttriggerinterval-simple-interval-scheduling)
-      - [`cronut.trigger/builder`: Full trigger definition](#cronuttriggerbuilder-full-trigger-definition)
+        - [`cronut.trigger/cron`: Simple Cron Scheduling](#cronuttriggercron-simple-cron-scheduling)
+        - [`cronut.trigger/interval`: Simple Interval Scheduling](#cronuttriggerinterval-simple-interval-scheduling)
+        - [`cronut.trigger/builder`: Full trigger definition](#cronuttriggerbuilder-full-trigger-definition)
     * [Concurrent execution](#concurrent-execution)
         + [Global concurrent execution](#global-concurrent-execution)
         + [Job-specific concurrent execution](#job-specific-concurrent-execution)
@@ -47,12 +47,12 @@ Cronut provides access to the Quartz Scheduler, exposed via the `cronut/schedule
 
 Create a scheduler with the following configuration:
 
-1. `:concurrent-execution-disallowed?`: (optional, default false) - run all jobs with @DisableConcurrentExecution
-2. `:update-check?`: (optional, default false) - check for Quartz updates on system startup.
+1. `:concurrent-execution-disallowed?`: run all jobs with `@DisableConcurrentExecution`
+2. `:update-check?`: check for Quartz updates on system startup.
 
 ````clojure
-(cronut/scheduler {:concurrent-execution-disallowed? true
-                   :update-check?                    false})
+(cronut/scheduler {:concurrent-execution-disallowed? true    ;; default false
+                   :update-check?                    false}) ;; default false
 ````
 
 ### Scheduler lifecycle
@@ -84,12 +84,8 @@ To schedule jobs, you can
 
 Each cronut job must implement the `org.quartz.Job` interface.
 
-The expectation being that every job will reify that interface either directly via `reify` or by returning a `defrecord`
-that implements the interface.
-
-Cronut supports further Quartz configuration of jobs (identity, description, recovery, and durability) by expecting
-those values to be assoc'd onto your job. You do not have to set them (in fact in most cases you can likely ignore
-them), however if you do want that control you will likely use the `defrecord` approach as opposed to `reify`.
+Cronut supports further Quartz configuration of jobs (identity, description, recovery, and durability) by passing an
+`opts` map when scheduling your job.
 
 Concurrent execution can be controlled on a per-job bases with the `disallow-concurrent-execution?` flag.
 
@@ -104,22 +100,31 @@ Concurrent execution can be controlled on a per-job bases with the `disallow-con
 
 (let [scheduler     (cronut/scheduler {:concurrent-execution-disallowed? true
                                        :update-check?                    false})
-      defrecord-job (map->TestDefrecordJobImpl {:identity    ["name1" "group2"]
-                                                :description "test job"
-                                                :recover?    true
-                                                :durable?    false})
+      defrecord-job (map->TestDefrecordJobImpl {})
       reify-job     (reify Job
                       (execute [_this _job-context]
                         (let [rand-id (str (UUID/randomUUID))]
                           (log/info rand-id "Reified Impl"))))]
 
-  (cronut/schedule-job scheduler (trigger/interval 1000) defrecord-job)
+  (cronut/schedule-job scheduler
+                       (trigger/interval 1000)
+                       defrecord-job
+                       {:name        "name1"
+                        :group       "group1"
+                        :description "test job 1"
+                        :recover?    true
+                        :durable?    false})
 
   (cronut/schedule-job scheduler
                        (trigger/builder {:type    :cron
                                          :cron    "*/5 * * * * ?"
                                          :misfire :do-nothing})
-                       reify-job))
+                       reify-job
+                       {:name        "name2"
+                        :group       "group1"
+                        :description "test job 2"
+                        :recover?    false
+                        :durable?    true}))
 ```` 
 
 ## Triggers
@@ -153,10 +158,11 @@ The `cronut.trigger/builder` function supports the full set of Quartz configurat
 
 ````clojure
 ;; interval
-(cronut.trigger/builder {:type        :simple
+(cronut.trigger/builder {:name        "trigger1"
+                         :group       "group3"
+                         :type        :simple
                          :interval    3000
                          :repeat      :forever
-                         :identity    ["trigger-two" "test"]
                          :description "sample simple trigger"
                          :start       #inst "2019-01-01T00:00:00.000-00:00"
                          :end         #inst "2019-02-01T00:00:00.000-00:00"
@@ -164,9 +170,10 @@ The `cronut.trigger/builder` function supports the full set of Quartz configurat
                          :priority    5})
 
 ;;cron
-(cronut.trigger/builder {:type        :cron
+(cronut.trigger/builder {:name        "trigger2"
+                         :group       "group3"
+                         :type        :cron
                          :cron        "*/6 * * * * ?"
-                         :identity    ["trigger-five" "test"]
                          :description "sample cron trigger"
                          :start       #inst "2018-01-01T00:00:00.000-00:00"
                          :end         #inst "2029-02-01T00:00:00.000-00:00"
@@ -207,7 +214,7 @@ See: integration test source: [test/cronut/integration-test.clj](test/cronut/int
   (:import (java.util UUID)
            (org.quartz Job)))
 
-(defrecord TestDefrecordJobImpl [identity description recover? durable? test-dep disallowConcurrentExecution?]
+(defrecord TestDefrecordJobImpl []
   Job
   (execute [this _job-context]
     (log/info "Defrecord Impl:" this)))
@@ -231,10 +238,12 @@ See: integration test source: [test/cronut/integration-test.clj](test/cronut/int
     (log/info "scheduling defrecord job on 1s interval")
     (cronut/schedule-job scheduler
                          (trigger/interval 1000)
-                         (map->TestDefrecordJobImpl {:identity    ["name1" "group2"]
-                                                     :description "test job"
-                                                     :recover?    true
-                                                     :durable?    false}))
+                         (map->TestDefrecordJobImpl {})
+                         {:name        "name1"
+                          :group       "group2"
+                          :description "test job"
+                          :recover?    true
+                          :durable?    false})
 
     ;; demonstrate scheduler can start with jobs, and jobs can start after scheduler
     (cronut/start scheduler)
@@ -247,7 +256,12 @@ See: integration test source: [test/cronut/integration-test.clj](test/cronut/int
                          (trigger/builder {:type    :cron
                                            :cron    "*/5 * * * * ?"
                                            :misfire :do-nothing})
-                         reify-job)
+                         reify-job
+                         {:name        "name2"
+                          :group       "group2"
+                          :description "test job 2"
+                          :recover?    false
+                          :durable?    true})
 
     (async/<!! (async/timeout 15000))
 

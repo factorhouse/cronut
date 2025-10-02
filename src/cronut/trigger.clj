@@ -5,9 +5,9 @@
 
 (defn base-builder
   "Provide a base trigger-builder from configuration"
-  [{:keys [identity description start end priority]}]
+  [{:keys [name group description start end priority]}]
   (cond-> (TriggerBuilder/newTrigger)
-    (seq identity) (.withIdentity (first identity) (second identity))
+    name (.withIdentity name group)
     description (.withDescription description)
     start (.startAt start)
     (nil? start) (.startNow)

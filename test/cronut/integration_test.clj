@@ -6,7 +6,7 @@
   (:import (java.util UUID)
            (org.quartz Job)))
 
-(defrecord TestDefrecordJobImpl [identity description recover? durable? test-dep disallowConcurrentExecution?]
+(defrecord TestDefrecordJobImpl []
   Job
   (execute [this _job-context]
     (log/info "Defrecord Impl:" this)))
@@ -30,10 +30,12 @@
     (log/info "scheduling defrecord job on 1s interval")
     (cronut/schedule-job scheduler
                          (trigger/interval 1000)
-                         (map->TestDefrecordJobImpl {:identity    ["name1" "group2"]
-                                                     :description "test job"
-                                                     :recover?    true
-                                                     :durable?    false}))
+                         (map->TestDefrecordJobImpl {})
+                         {:name    "name1"
+                          :group       "group2"
+                          :description "test job"
+                          :recover?    true
+                          :durable?    false})
 
     ;; demonstrate scheduler can start with jobs, and jobs can start after scheduler
     (cronut/start scheduler)
@@ -46,7 +48,12 @@
                          (trigger/builder {:type    :cron
                                            :cron    "*/5 * * * * ?"
                                            :misfire :do-nothing})
-                         reify-job)
+                         reify-job
+                         {:name        "name2"
+                          :group       "group2"
+                          :description "test job 2"
+                          :recover?    false
+                          :durable?    true})
 
     (async/<!! (async/timeout 15000))
 
