@@ -1,6 +1,7 @@
 (ns cronut.trigger
+  (:refer-clojure :exclude [proxy])
   (:import (java.util TimeZone)
-           (org.quartz CronScheduleBuilder SimpleScheduleBuilder TriggerBuilder)))
+           (org.quartz CronScheduleBuilder SimpleScheduleBuilder TriggerBuilder TriggerKey)))
 
 (defn base-builder
   "Provide a base trigger-builder from configuration"
@@ -72,3 +73,9 @@
   [cron]
   (builder {:type :cron
             :cron cron}))
+
+(defn key
+  ([name]
+   (key name nil))
+  ([name group]
+   (TriggerKey. name group)))
