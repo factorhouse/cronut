@@ -20,6 +20,23 @@ Cronut supports **in-memory** scheduling of jobs within a single JVM. JDBC and d
 
 # Contents
 
+- [Usage](#usage)
+    * [Scheduler](#scheduler)
+        + [Scheduler lifecycle](#scheduler-lifecycle)
+        + [Scheduling jobs](#scheduling-jobs)
+    * [Jobs](#jobs)
+        + [Job example](#job-example)
+    * [Triggers](#triggers)
+      - [`cronut.trigger/cron`: Simple Cron Scheduling](#cronuttriggercron-simple-cron-scheduling)
+      - [`cronut.trigger/interval`: Simple Interval Scheduling](#cronuttriggerinterval-simple-interval-scheduling)
+      - [`cronut.trigger/builder`: Full trigger definition](#cronuttriggerbuilder-full-trigger-definition)
+    * [Concurrent execution](#concurrent-execution)
+        + [Global concurrent execution](#global-concurrent-execution)
+        + [Job-specific concurrent execution](#job-specific-concurrent-execution)
+        + [Misfire configuration](#misfire-configuration)
+- [Example system](#example-system)
+- [License](#license)
+
 # Usage
 
 A quartz `scheduler` runs a `job` on a schedule defined by a `trigger`.
