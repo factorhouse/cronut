@@ -1,7 +1,11 @@
 # Change Log
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
-## [1.0.1] - 2025-10-02
+## [1.2.0] - 2025-10-02
+
+- Separate jobs and opts, move to group/name rather than identity
+
+## [1.1.0] - 2025-10-02
 
 - Breakout cronut-integrant and cronut-javax into separate project repositories
 - Update tests re: trigger and job key identity
@@ -23,7 +27,6 @@ Changes in preperation of more active development:
 
 - Shift to factorhouse organisation on github and clojars
 - Contract troy-west.cronut ns to simply cronut
-- Change to MIT license
 
 ## [0.2.6] - 2020-07-14
 
