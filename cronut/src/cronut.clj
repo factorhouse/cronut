@@ -1,8 +1,9 @@
 (ns cronut
   (:refer-clojure :exclude [proxy])
   (:require [clojure.tools.logging :as log]
-            [cronut.job :as job])
-  (:import (org.quartz JobDetail JobKey Scheduler Trigger TriggerBuilder TriggerKey)
+            [cronut.job :as job]
+            [cronut.trigger :as trigger])
+  (:import (org.quartz JobDetail JobKey Scheduler Trigger TriggerBuilder)
            (org.quartz.impl StdSchedulerFactory)))
 
 (defn scheduler
@@ -57,39 +58,40 @@
 
 (defn pause-job
   ([^Scheduler scheduler name group]
-   (.pauseJob scheduler (JobKey. name group)))
+   (.pauseJob scheduler (job/key name group)))
   ([^Scheduler scheduler ^Trigger trigger]
    (.pauseJob scheduler (.getJobKey trigger))))
 
 (defn resume-job
   ([^Scheduler scheduler name group]
-   (.resumeJob scheduler (JobKey. name group)))
+   (.resumeJob scheduler (job/key name group)))
   ([^Scheduler scheduler ^Trigger trigger]
    (.resumeJob scheduler (.getJobKey trigger))))
 
-(defn unschedule-job
-  ([^Scheduler scheduler name group]
-   (.unscheduleJob scheduler (TriggerKey. name group)))
-  ([^Scheduler scheduler ^Trigger trigger]
-   (.unscheduleJob scheduler (.getKey trigger))))
-
 (defn delete-job
   ([^Scheduler scheduler name group]
-   (.deleteJob scheduler (JobKey. name group)))
+   (.deleteJob scheduler (job/key name group)))
   ([^Scheduler scheduler ^Trigger trigger]
    (.deleteJob scheduler (.getJobKey trigger))))
 
 (defn pause-trigger
   ([^Scheduler scheduler name group]
-   (.pauseTrigger scheduler (TriggerKey. name group)))
+   (.pauseTrigger scheduler (trigger/key name group)))
   ([^Scheduler scheduler ^Trigger trigger]
    (.pauseTrigger scheduler (.getKey trigger))))
 
 (defn resume-trigger
   ([^Scheduler scheduler name group]
-   (.resumeTrigger scheduler (TriggerKey. name group)))
+   (.resumeTrigger scheduler (trigger/key name group)))
   ([^Scheduler scheduler ^Trigger trigger]
    (.resumeTrigger scheduler (.getKey trigger))))
+
+;; unschedule-trigger rather than unschedule-job because it works on trigger identity
+(defn unschedule-trigger
+  ([^Scheduler scheduler name group]
+   (.unscheduleJob scheduler (trigger/key name group)))
+  ([^Scheduler scheduler ^Trigger trigger]
+   (.unscheduleJob scheduler (.getKey trigger))))
 
 (defn start
   [^Scheduler scheduler]
