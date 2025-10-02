@@ -53,13 +53,11 @@
 
 (defmethod builder :simple
   [config]
-  (.withSchedule ^TriggerBuilder (base-builder config)
-                 (simple-schedule config)))
+  (.withSchedule ^TriggerBuilder (base-builder config) (simple-schedule config)))
 
 (defmethod builder :cron
   [config]
-  (.withSchedule ^TriggerBuilder (base-builder config)
-                 (cron-schedule config)))
+  (.withSchedule ^TriggerBuilder (base-builder config) (cron-schedule config)))
 
 (defn interval
   "Trigger immediately, at an interval-ms, run forever (well that's optimistic but you get the idea)"
@@ -70,6 +68,7 @@
             :repeat    :forever}))
 
 (defn cron
+  "Trigger on a schedule defined by the cron expression"
   [cron]
   (builder {:type :cron
             :cron cron}))

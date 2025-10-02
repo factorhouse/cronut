@@ -49,7 +49,7 @@
              (select-keys job-keys)
              (dissoc :fullName))))
 
-  ;; global concurrentExecutionDisallowed? = false
+  ;; global concurrentExecutionDisallowed? = true
   (is (= {:jobClass                      SerialProxyJob
           :description                   nil
           :durable                       false

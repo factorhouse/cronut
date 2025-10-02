@@ -2,7 +2,7 @@
 
  :test.job/one     {:dep-one #ig/ref :dep/one}
 
- :test.job/two     {:identity    ["test-group" "test-name"]
+ :test.job/two     {:identity    ["name1" "group2"]
                     :description "test job"
                     :recover?    true
                     :durable?    false
