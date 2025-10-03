@@ -41,6 +41,10 @@ Cronut supports **in-memory** scheduling of jobs within a single JVM. JDBC and d
 
 A quartz `scheduler` runs a `job` on a schedule defined by a `trigger`.
 
+A `job` or `trigger` is uniquely identified by a `key` consisting of a `name` and (optional) `group`.
+
+A `job` can have multiple `triggers`, a `trigger` is for a single `job` only.
+
 ## Scheduler
 
 Cronut provides access to the Quartz Scheduler, exposed via the `cronut/scheduler` function.
