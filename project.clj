@@ -1,4 +1,4 @@
-(defproject io.factorhouse/cronut "1.2.0"
+(defproject io.factorhouse/cronut "1.2.1"
 
   :description "A Clojure companion to Quartz with Jakarta compatibility"
 
