@@ -9,15 +9,15 @@
 
   :plugins [[dev.weavejester/lein-cljfmt "0.15.3"]]
 
-  :dependencies [[org.clojure/clojure "1.12.3"]
-                 [org.clojure/tools.logging "1.3.0"]
-                 [org.quartz-scheduler/quartz "2.5.1" :exclusions [org.slf4j/slf4j-api]]]
+  :dependencies [[org.clojure/clojure "1.12.4"]
+                 [org.clojure/tools.logging "1.3.1"]
+                 [org.quartz-scheduler/quartz "2.5.2" :exclusions [org.slf4j/slf4j-api]]]
 
   :profiles {:dev   {:resource-paths ["dev-resources"]
-                     :dependencies   [[ch.qos.logback/logback-classic "1.5.20"]
+                     :dependencies   [[ch.qos.logback/logback-classic "1.5.23"]
                                       [org.slf4j/slf4j-api "2.0.17"]
                                       [org.clojure/core.async "1.8.741"]
-                                      [clj-kondo "2025.10.23" :exclusions [org.clojure/tools.reader]]]}
+                                      [clj-kondo "2025.12.23" :exclusions [org.clojure/tools.reader]]]}
              :smoke {:pedantic? :abort}}
 
   :aliases {"check"  ["with-profile" "+smoke" "check"]
