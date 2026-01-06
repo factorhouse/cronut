@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
+## [1.2.2] - 2026-01-06
+
+- Update to org.quartz-scheduler/quartz "2.5.2"
+
 ## [1.2.1] - 2025-10-25
 
 - Update to org.quartz-scheduler/quartz "2.5.1"
