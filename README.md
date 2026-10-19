@@ -184,7 +184,24 @@ The `cronut.trigger/builder` function supports the full set of Quartz configurat
                          :time-zone   "Australia/Melbourne"
                          :misfire     :fire-and-proceed
                          :priority    4})
+
+;;calendar-interval
+(cronut.trigger/builder {:name                  "trigger3"
+                         :group                 "group3"
+                         :type                  :calendar-interval
+                         :interval              2
+                         :time-unit             :weeks
+                         :description           "sample calendar interval trigger"
+                         :start                 #inst "2018-01-01T00:00:00.000-00:00"
+                         :end                   #inst "2029-02-01T00:00:00.000-00:00"
+                         :time-zone             "Australia/Melbourne"
+                         :preserve-hour-of-day? true
+                         :misfire               :do-nothing
+                         :priority              3})
 ````
+
+Note: a `:calendar-interval` `:interval` without `:time-unit` is in days (as in Quartz), not millis as with `:simple`.
+`:skip-day-if-hour-does-not-exist?` only applies when `:preserve-hour-of-day?` is true and the unit is days or greater.
 
 ## Concurrent execution
 

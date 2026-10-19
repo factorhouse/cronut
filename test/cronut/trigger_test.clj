@@ -1,7 +1,8 @@
 (ns cronut.trigger-test
   (:require [clojure.test :refer [deftest is]]
             [cronut.trigger :as trigger])
-  (:import (java.util TimeZone)))
+  (:import (java.util TimeZone)
+           (org.quartz CalendarIntervalTrigger DateBuilder$IntervalUnit)))
 
 (deftest base-trigger
 
@@ -127,3 +128,40 @@
              (.build)
              (bean)
              (select-keys [:cronExpression :timeZone :misfireInstruction])))))
+
+(deftest calendar-interval-schedule
+
+  (is (= {:repeatInterval     1
+          :repeatIntervalUnit DateBuilder$IntervalUnit/DAY
+          :misfireInstruction 0}
+         (-> (trigger/calendar-interval-schedule nil)
+             (.build)
+             (bean)
+             (select-keys [:repeatInterval :repeatIntervalUnit :misfireInstruction]))))
+
+  (is (= {:repeatInterval                         2
+          :repeatIntervalUnit                     DateBuilder$IntervalUnit/WEEK
+          :timeZone                               (TimeZone/getTimeZone "UTC")
+          :misfireInstruction                     2
+          :preserveHourOfDayAcrossDaylightSavings true
+          :skipDayIfHourDoesNotExist              true}
+         (-> (trigger/calendar-interval-schedule {:interval                         2
+                                                  :time-unit                        :weeks
+                                                  :time-zone                        "UTC"
+                                                  :misfire                          :do-nothing
+                                                  :preserve-hour-of-day?            true
+                                                  :skip-day-if-hour-does-not-exist? true})
+             (.build)
+             (bean)
+             (select-keys [:repeatInterval :repeatIntervalUnit :timeZone :misfireInstruction
+                           :preserveHourOfDayAcrossDaylightSavings :skipDayIfHourDoesNotExist]))))
+
+  (let [trigger (-> (trigger/builder {:type      :calendar-interval
+                                      :interval  2
+                                      :time-unit :weeks
+                                      :time-zone "UTC"
+                                      :start     #inst "2019-01-01T00:00:00.000-00:00"})
+                    (.build))]
+    (is (instance? CalendarIntervalTrigger trigger))
+    (is (= #inst "2019-01-15T00:00:00.000-00:00"
+           (.getFireTimeAfter trigger #inst "2019-01-01T00:00:00.000-00:00")))))

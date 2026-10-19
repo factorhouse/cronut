@@ -1,7 +1,7 @@
 (ns cronut.trigger
   (:refer-clojure :exclude [key])
   (:import (java.util TimeZone)
-           (org.quartz CronScheduleBuilder SimpleScheduleBuilder TriggerBuilder TriggerKey)))
+           (org.quartz CalendarIntervalScheduleBuilder CronScheduleBuilder SimpleScheduleBuilder TriggerBuilder TriggerKey)))
 
 (defn base-builder
   "Provide a base trigger-builder from configuration"
@@ -50,6 +50,32 @@
       (.inTimeZone schedule (TimeZone/getTimeZone ^String time-zone)))
     schedule))
 
+(defn calendar-interval-schedule
+  "Provide a calendar interval schedule from configuration"
+  [{:keys [interval time-unit time-zone misfire preserve-hour-of-day? skip-day-if-hour-does-not-exist?]}]
+  (let [schedule (CalendarIntervalScheduleBuilder/calendarIntervalSchedule)]
+    (case time-unit
+      :seconds (.withIntervalInSeconds schedule interval)
+      :minutes (.withIntervalInMinutes schedule interval)
+      :hours (.withIntervalInHours schedule interval)
+      :days (.withIntervalInDays schedule interval)
+      :weeks (.withIntervalInWeeks schedule interval)
+      :months (.withIntervalInMonths schedule interval)
+      :years (.withIntervalInYears schedule interval)
+      nil (when interval (.withIntervalInDays schedule interval)))
+    (case misfire
+      :ignore (.withMisfireHandlingInstructionIgnoreMisfires schedule)
+      :do-nothing (.withMisfireHandlingInstructionDoNothing schedule)
+      :fire-and-proceed (.withMisfireHandlingInstructionFireAndProceed schedule)
+      nil nil)
+    (when time-zone
+      (.inTimeZone schedule (TimeZone/getTimeZone ^String time-zone)))
+    (when (some? preserve-hour-of-day?)
+      (.preserveHourOfDayAcrossDaylightSavings schedule preserve-hour-of-day?))
+    (when (some? skip-day-if-hour-does-not-exist?)
+      (.skipDayIfHourDoesNotExist schedule skip-day-if-hour-does-not-exist?))
+    schedule))
+
 (defmulti builder :type)
 
 (defmethod builder :simple
@@ -59,6 +85,10 @@
 (defmethod builder :cron
   [config]
   (.withSchedule ^TriggerBuilder (base-builder config) (cron-schedule config)))
+
+(defmethod builder :calendar-interval
+  [config]
+  (.withSchedule ^TriggerBuilder (base-builder config) (calendar-interval-schedule config)))
 
 (defn interval
   "Trigger immediately, at an interval-ms, run forever (well that's optimistic but you get the idea)"

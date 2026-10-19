@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
+## [Unreleased]
+
+- Add :calendar-interval trigger (#3)
+
 ## [1.2.3] - 2026-03-31
 
 - Update minor dependencies
